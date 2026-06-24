@@ -119,4 +119,6 @@ frontend/android/app/src/main/res/xml/config.xml
 # Cordova 플러그인 관련
 **/capacitor-cordova-android-plugins
 
-mammacare-key
+frontend/android/app/google-services.json
+GoogleService-Info.plist
+**/GoogleService-Info.plist
