@@ -12,6 +12,9 @@ serviceAccount*.json
 # ChromaDB 데이터 (볼륨으로 마운트)
 backend/data/
 
+# 업로드 이미지 (런타임 볼륨 — 이미지에 포함 금지)
+backend/uploads/
+
 # 프론트엔드 빌드 아티팩트
 frontend/node_modules/
 frontend/dist/

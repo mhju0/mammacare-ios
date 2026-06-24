@@ -7,7 +7,8 @@ services:
     env_file:
       - backend/.env
     volumes:
-      - ./backend/data:/app/data
+      # 업로드 이미지 영속화 (구 Azure Blob 대체)
+      - ./backend/uploads:/app/uploads
       # Firebase 서비스 계정 키는 저장소에 커밋하지 않습니다.
       - ./firebase_credentials.json:/app/firebase_credentials.json:ro
     restart: unless-stopped

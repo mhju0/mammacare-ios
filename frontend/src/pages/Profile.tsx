@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
+import { AuthImage } from "../components/AuthImage";
 import { useNavigate, useLocation } from "react-router";
 import { Capacitor } from "@capacitor/core";
 import { useApp } from "../context/AppContext";
@@ -118,7 +119,7 @@ function ExpectedBirthView({
       </div>
       <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-border shadow-md">
         {info.photo ? (
-          <img src={info.photo} alt={info.name} className="w-full h-full object-cover" />
+          <AuthImage src={info.photo} alt={info.name} className="w-full h-full object-cover" />
         ) : (
           <DefaultIcon gender={null} />
         )}
@@ -219,7 +220,7 @@ function BabyInfoColumn({
         <div className="flex items-center gap-5">
           <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-border shrink-0">
             {info.photo ? (
-              <img src={info.photo} alt={info.name} className="w-full h-full object-cover" />
+              <AuthImage src={info.photo} alt={info.name} className="w-full h-full object-cover" />
             ) : (
               <DefaultIcon gender={info.gender} />
             )}

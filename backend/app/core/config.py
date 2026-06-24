@@ -5,7 +5,8 @@ from urllib.parse import unquote
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-_ENV_FILE = Path(__file__).resolve().parents[2] / ".env"
+_BACKEND_ROOT = Path(__file__).resolve().parents[2]
+_ENV_FILE = _BACKEND_ROOT / ".env"
 
 
 class Settings(BaseSettings):
@@ -33,13 +34,11 @@ class Settings(BaseSettings):
     FRONTEND_URL: str = "http://localhost:5173"
     FRONTEND_OAUTH_CALLBACK_PATH: str = "/auth/callback"
 
-    AZURE_STORAGE_CONNECTION_STRING: str = ""
-    AZURE_STORAGE_CONTAINER_NAME: str = "mammacare-photos"
-
-    AZURE_CONTENT_SAFETY_ENDPOINT: str = ""
-    AZURE_CONTENT_SAFETY_KEY: str = ""
-    AZURE_CONTENT_SAFETY_API_VERSION: str = "2024-09-01"
-    AZURE_CONTENT_SAFETY_REJECT_SEVERITY: int = 4
+    # 로컬 파일 저장 (구 Azure Blob 대체)
+    # UPLOAD_DIR: 업로드 이미지를 저장할 디렉토리. 미설정 시 backend/uploads.
+    # MEDIA_BASE_URL: 저장 이미지를 서빙하는 보호 엔드포인트 prefix.
+    UPLOAD_DIR: str = str(_BACKEND_ROOT / "uploads")
+    MEDIA_BASE_URL: str = "/api/media"
 
     GOOGLE_CLIENT_ID: str = ""
     GOOGLE_CLIENT_SECRET: str = ""
@@ -55,18 +54,6 @@ class Settings(BaseSettings):
     NAVER_REDIRECT_URI: str = ""
 
     FIREBASE_CREDENTIALS_PATH: str = ""
-
-    AZURE_OPENAI_ENDPOINT: str = ""
-    AZURE_OPENAI_API_KEY: str = ""
-    AZURE_OPENAI_API_VERSION: str = "2024-02-01"
-    AZURE_OPENAI_DEPLOYMENT_NAME: str = "gpt-4o"
-    AZURE_OPENAI_EMBEDDING_DEPLOYMENT: str = "text-embedding-3-small"
-
-    AZURE_SPEECH_KEY: str = ""
-    AZURE_SPEECH_REGION: str = "eastus2"
-
-    AZURE_LANGUAGE_ENDPOINT: str = ""
-    AZURE_LANGUAGE_KEY: str = ""
 
     @field_validator("DEBUG", mode="before")
     @classmethod

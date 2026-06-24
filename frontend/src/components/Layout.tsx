@@ -1,9 +1,8 @@
 import { Outlet, Link, useNavigate, useLocation } from "react-router";
 import { useApp } from "../context/AppContext";
-import { Bell, User, Settings, LogOut, Menu, X, Mic, Home, Calendar, AlertCircle, MessageCircle, ChevronRight, Utensils, BookOpen, Bot } from "lucide-react";
+import { Bell, User, Settings, LogOut, Menu, X, Home, Calendar, AlertCircle, MessageCircle, ChevronRight, Utensils, BookOpen } from "lucide-react";
 import { Capacitor } from "@capacitor/core";
 import { useCallback, useEffect, useRef, useState } from "react";
-import Chatbot from "./Chatbot";
 import PushToast from "./PushToast";
 import { listNotificationsApi, NOTIFICATION_REFRESH_EVENT, emitPushToast, getNotificationTarget } from "../api/notifications";
 import { dedupeRequest, readSessionCache, writeSessionCache } from "../utils/sessionCache";
@@ -44,7 +43,6 @@ const appMenuNavItems = [
   { label: "레시피 관리", path: "/recipes", icon: BookOpen },
   { label: "알레르기 관리", path: "/allergy", icon: AlertCircle },
   { label: "커뮤니티", path: "/community", icon: MessageCircle },
-  { label: "AI 챗봇", path: null, icon: Bot },
   { label: "설정", path: "/settings", icon: Settings },
 ];
 
@@ -168,13 +166,6 @@ export default function Layout() {
             </Link>
             {user ? (
               <div className="flex items-center gap-0">
-                <button
-                  title="음성 입력"
-                  onClick={() => window.dispatchEvent(new CustomEvent("chatbot-mic-trigger"))}
-                  className="p-[11px] rounded-full hover:bg-[#F6E26B]/30 transition-colors text-foreground"
-                >
-                  <Mic className="w-5 h-5 sm:w-[22px] sm:h-[22px]" />
-                </button>
                 <Link to="/profile" onClick={() => setAppMenuOpen(false)}>
                   <button title="프로필" className="p-[11px] rounded-full hover:bg-[#F6E26B]/30 transition-colors text-foreground">
                     <User className="w-5 h-5 sm:w-[22px] sm:h-[22px]" />
@@ -207,41 +198,24 @@ export default function Layout() {
           <div className="app-menu-overlay fixed inset-0 w-full z-[9998] bg-background flex flex-col">
             {/* 메뉴 목록 */}
             <nav className="flex-1 flex flex-col py-4 gap-1 overflow-y-auto">
-              {appMenuNavItems.map((item) =>
-                item.path === null ? (
-                  <button
-                    key="chatbot"
-                    onClick={() => {
-                      setAppMenuOpen(false);
-                      window.dispatchEvent(new CustomEvent("chatbot-open"));
-                    }}
-                    className="w-full flex items-center justify-between px-4 py-4 rounded-2xl transition-colors text-foreground hover:bg-[#F6E26B]/20"
-                  >
-                    <div className="flex items-center gap-3">
-                      <item.icon size={22} className="text-muted-foreground" />
-                      <span className="text-lg font-medium">{item.label}</span>
-                    </div>
-                    <ChevronRight size={18} className="text-muted-foreground" />
-                  </button>
-                ) : (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    onClick={() => setAppMenuOpen(false)}
-                    className={`w-full flex items-center justify-between px-4 py-4 rounded-2xl transition-colors ${
-                      location.pathname === item.path
-                        ? "bg-[#F6E26B]/40 text-foreground"
-                        : "text-foreground hover:bg-[#F6E26B]/20"
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <item.icon size={22} className="text-muted-foreground" />
-                      <span className="text-lg font-medium">{item.label}</span>
-                    </div>
-                    <ChevronRight size={18} className="text-muted-foreground" />
-                  </Link>
-                )
-              )}
+              {appMenuNavItems.map((item) => (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  onClick={() => setAppMenuOpen(false)}
+                  className={`w-full flex items-center justify-between px-4 py-4 rounded-2xl transition-colors ${
+                    location.pathname === item.path
+                      ? "bg-[#F6E26B]/40 text-foreground"
+                      : "text-foreground hover:bg-[#F6E26B]/20"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <item.icon size={22} className="text-muted-foreground" />
+                    <span className="text-lg font-medium">{item.label}</span>
+                  </div>
+                  <ChevronRight size={18} className="text-muted-foreground" />
+                </Link>
+              ))}
             </nav>
 
           </div>
@@ -283,12 +257,6 @@ export default function Layout() {
             );
           })}
         </nav>
-
-        {user && !user.isAdmin && (
-          <>
-            <Chatbot />
-          </>
-        )}
 
         <PushToast />
       </div>
@@ -461,20 +429,6 @@ export default function Layout() {
       <main className="flex-1">
         <Outlet />
       </main>
-
-      {user && !user.isAdmin && (
-        <>
-          <button
-            title="음성 입력"
-            onClick={() => window.dispatchEvent(new CustomEvent("chatbot-mic-trigger"))}
-            className="fixed bottom-24 right-6 w-14 h-14 bg-[radial-gradient(ellipse_at_center,#FFFAF0_0%,#FEF5CC_50%,#FFE78A_100%)]
-            rounded-full shadow-lg hover:scale-110 transition-transform z-[30] flex items-center justify-center text-[#3D3C38]"
-          >
-            <Mic className="w-9 h-9 sm:w-[26px] sm:h-[26px]" />
-          </button>
-          <Chatbot />
-        </>
-      )}
 
       <PushToast />
 

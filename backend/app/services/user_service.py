@@ -337,7 +337,7 @@ async def update_baby(
 async def delete_baby(db: AsyncSession, parent_id: uuid.UUID, baby_id: uuid.UUID) -> None:
     baby = await get_baby(db, parent_id, baby_id)
 
-    # 삭제 전에 Azure blob 경로 수집 (프로필 사진 + 증상 사진)
+    # 삭제 전에 로컬 파일 경로 수집 (프로필 사진 + 증상 사진)
     blob_paths: list[str] = []
     if is_blob_path(baby.photo_profile_baby):
         blob_paths.append(baby.photo_profile_baby)

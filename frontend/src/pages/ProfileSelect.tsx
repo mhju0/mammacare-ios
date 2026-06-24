@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
+import { AuthImage } from "../components/AuthImage";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router";
 import { useApp } from "../context/AppContext";
@@ -81,7 +82,7 @@ export default function ProfileSelect() {
           >
             <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-transparent group-hover:border-[#FFF5D4] transition-all duration-200 shadow-md">
               {baby.photo ? (
-                <img src={baby.photo} alt={baby.name} className="w-full h-full object-cover" />
+                <AuthImage src={baby.photo} alt={baby.name} className="w-full h-full object-cover" />
               ) : (
                 <DefaultProfileIcon gender={baby.gender} />
               )}

@@ -1,14 +1,5 @@
 import logging
-import os
 from contextlib import asynccontextmanager
-
-# ChromaDB OpenTelemetry가 gRPC로 Posthog에 연결 시도하는 것을 차단 (반드시 import 전에 설정)
-os.environ.setdefault("ANONYMIZED_TELEMETRY", "False")
-os.environ.setdefault("CHROMA_TELEMETRY", "False")
-os.environ.setdefault("OTEL_SDK_DISABLED", "true")
-os.environ.setdefault("OTEL_TRACES_EXPORTER", "none")
-os.environ.setdefault("OTEL_METRICS_EXPORTER", "none")
-os.environ.setdefault("OTEL_LOGS_EXPORTER", "none")
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import HTTPException, RequestValidationError
@@ -29,7 +20,6 @@ from app.db.session import engine
 import app.models  # noqa: F401 — Base.metadata에 모든 ORM 모델 등록
 from app.services.notification_scheduler import shutdown_scheduler, start_scheduler
 from app.services.allergy_scheduler import start_allergy_scheduler, shutdown_allergy_scheduler
-from app.services.chatbot_service import get_chatbot_service
 
 # ──────────────────────────────────────────
 # 로깅 설정
@@ -162,16 +152,6 @@ async def lifespan(app: FastAPI):
     logger.info("DB 테이블 동기화 완료")
     start_scheduler()
     start_allergy_scheduler()
-    import asyncio
-
-    async def _init_chatbot():
-        try:
-            await asyncio.to_thread(get_chatbot_service)
-            logger.info("챗봇 서비스 초기화 완료")
-        except Exception:
-            logger.exception("챗봇 서비스 초기화 실패 — 챗봇 기능이 제한됩니다.")
-
-    asyncio.create_task(_init_chatbot())
     logger.info("Mammacare API 시작 (DEBUG=%s)", settings.DEBUG)
     try:
         yield

@@ -45,7 +45,6 @@ from app.schemas.community.community_post import (
     CommunityPostUpdate,
 )
 from app.schemas.community.community_post_image import CommunityPostImageResponse
-from app.services.content_safety_service import moderate_uploaded_image
 
 router = APIRouter()
 COMMUNITY_IMAGE_MAX_SIZE_BYTES = 4 * 1024 * 1024
@@ -196,7 +195,7 @@ async def upload_post_image(
     current_user: CurrentUser,
     file: UploadFile = File(...),
 ):
-    """커뮤니티 게시글 이미지 업로드. Azure Content Safety 검사 후 Blob에 저장합니다."""
+    """커뮤니티 게시글 이미지 업로드. Blob에 저장합니다."""
     post = await get_post(db, post_id)
     if not post or post.is_deleted:
         raise HTTPException(status_code=404, detail="게시글을 찾을 수 없습니다.")
@@ -210,7 +209,6 @@ async def upload_post_image(
             detail="이미지는 게시글당 최대 5장까지 업로드할 수 있습니다.",
         )
 
-    await moderate_uploaded_image(file)
     blob_path = await upload_image_to_blob(
         file,
         folder=f"community/{post_id}",

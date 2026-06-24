@@ -29,7 +29,7 @@ async def create_photo(
     sort_order: int = 0,
     db: AsyncSession = Depends(get_db),
 ):
-    """증상 사진 업로드 (Azure Blob Storage)"""
+    """증상 사진 업로드 (로컬 파일 저장)"""
     check = await crud.verify_symptom_check_owner(db, check_id, current_user.id)
 
     result = await db.execute(

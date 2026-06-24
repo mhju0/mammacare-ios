@@ -340,7 +340,7 @@ async def delete_ingredient_testing(
     if not db_obj:
         return False
 
-    # cascade로 함께 삭제되는 증상 사진의 Azure blob도 정리
+    # cascade로 함께 삭제되는 증상 사진의 로컬 파일도 정리
     photo_urls = (await db.execute(
         select(SymptomPhoto.photo_url)
         .join(SymptomCheck, SymptomPhoto.check_id == SymptomCheck.id)

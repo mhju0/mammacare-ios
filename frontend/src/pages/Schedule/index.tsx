@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router";
-import { ChevronLeft, ChevronRight, Clock, Sparkles, Soup } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock, Soup } from "lucide-react";
 import { Capacitor } from "@capacitor/core";
 import ProtectedPage from "../../components/ProtectedPage";
 import { useApp } from "../../context/AppContext";
@@ -14,7 +14,6 @@ import {
   isToday,
   calculateBabyAgeMonths,
 } from "./types";
-import { AIMealPlanningModal } from "./Modals";
 import { MealDetailPanel } from "./MealDetailPanel";
 import { IngredientIcon } from "../../components/IngredientIcon";
 import TutorialModal from "../../components/TutorialModal";
@@ -60,7 +59,6 @@ function ScheduleInner() {
   const [viewYear, setViewYear] = useState(initialUiState?.viewYear ?? today.getFullYear());
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [dayMeals, setDayMeals] = useState<DayMeals>({});
-  const [showAIMealPlanning, setShowAIMealPlanning] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
 
@@ -123,14 +121,7 @@ function ScheduleInner() {
     fetchMonthlySchedules();
   }, [fetchMonthlySchedules]);
 
-  // Chatbot STT에서 AI 식단 구성 이벤트 수신
-  useEffect(() => {
-    const handler = () => setShowAIMealPlanning(true);
-    window.addEventListener("global-stt-mealplan", handler);
-    return () => window.removeEventListener("global-stt-mealplan", handler);
-  }, []);
-
-  // GlobalSTT로 재료/식단 등록 완료 시 달력 갱신
+  // 수동 식단 등록/수정 완료 시 달력 갱신
   useEffect(() => {
     window.addEventListener("global-stt-schedule-saved", fetchMonthlySchedules);
     return () => window.removeEventListener("global-stt-schedule-saved", fetchMonthlySchedules);
@@ -219,16 +210,6 @@ function ScheduleInner() {
           </h1>
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setShowAIMealPlanning(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-full font-bold
-              shadow-sm transition-all duration-300 whitespace-nowrap
-              bg-[radial-gradient(ellipse_at_center,#FFFAF0_0%,#FEF5CC_50%,#FFEFAB_100%)]
-              hover:bg-[radial-gradient(ellipse_at_center,#FEF5CC_0%,#FFEFAB_100%)]"
-            >
-              <Sparkles size={14} />
-              AI 식단 구성
-            </button>
-            <button
               onClick={() => setShowTutorial(true)}
               className="px-3 py-1.5 text-sm rounded-full font-bold whitespace-nowrap
               bg-[radial-gradient(ellipse_at_center,#EBF7FF_0%,#C7E9FF_100%)]
@@ -248,15 +229,6 @@ function ScheduleInner() {
             <p className="text-base text-muted-foreground mt-1">아기의 식사 스케줄을 관리하세요</p>
           </div>
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => setShowAIMealPlanning(true)}
-              className="flex items-center gap-2 px-5 py-2.5 from-primary to-accent text-primary-foreground font-bold rounded-full
-              whitespace-nowrap transition-all duration-300 shadow-sm bg-[radial-gradient(ellipse_at_center,#FFFAF0_0%,#FEF5CC_50%,#FFEFAB_100%)]
-              hover:bg-[radial-gradient(ellipse_at_center,#FEF5CC_0%,#FFEFAB_100%)]"
-            >
-              <Sparkles size={18} />
-              AI 식단 구성
-            </button>
             <button
               onClick={() => setShowTutorial(true)}
               className="px-4 py-2.5 rounded-full font-bold whitespace-nowrap
@@ -409,13 +381,6 @@ function ScheduleInner() {
           </div>
         )}
       </div>
-
-      {showAIMealPlanning && (
-        <AIMealPlanningModal
-          onClose={() => setShowAIMealPlanning(false)}
-          onApplied={fetchMonthlySchedules}
-        />
-      )}
 
       <TutorialModal open={showTutorial} onClose={() => setShowTutorial(false)}
         slides={scheduleSlides} title="이유식 일정 사용법" />

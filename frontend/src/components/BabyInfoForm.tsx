@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback, useEffect, useLayoutEffect, useMemo } from "react";
 import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
+import { AuthImage } from "./AuthImage";
 import type { BabyProfile } from "../types";
 import { Camera, Check, ChevronLeft, ChevronDown, X, Venus, Mars, Search, AlertCircle } from "lucide-react";
 import { listIngredients, type IngredientResponse } from "../api/ingredients";
@@ -571,7 +572,7 @@ export function BabyInfoForm({
             className="w-24 h-24 rounded-full bg-[#FFFBED] border-2 border-dashed border-border flex items-center justify-center overflow-hidden hover:border-primary transition-colors"
           >
             {form.photo ? (
-              <img
+              <AuthImage
                 src={form.photo}
                 alt="baby"
                 className="w-full h-full object-cover"

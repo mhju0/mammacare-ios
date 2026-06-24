@@ -14,7 +14,7 @@ from app.crud.allergy.ownership import verify_baby_owner
 from app.services.allergy import report as service
 
 from app.core.deps import CurrentUser
-from app.core.storage import generate_sas_url
+from app.core.storage import read_image_as_data_uri
 
 router = APIRouter()
 logger = logging.getLogger("mammacare")
@@ -48,15 +48,17 @@ async def download_report(
             detail="아기 정보를 찾을 수 없습니다.",
         )
 
-    # 2) 사진 SAS URL 사전 생성
+    # 2) 사진을 data URI로 사전 임베드
+    # weasyprint는 인증 헤더를 못 보내 보호 엔드포인트를 직접 못 읽으므로,
+    # 리포트 렌더 경로에서는 로컬 파일을 base64 data URI로 인라인 임베드한다.
     photo_sas_map: dict[str, str] = {}
     for testing in testings:
         for check in testing.symptom_checks:
             for photo in check.symptom_photos:
                 if photo.photo_url and photo.photo_url not in photo_sas_map:
-                    photo_sas_map[photo.photo_url] = await generate_sas_url(
-                        photo.photo_url, expires_minutes=60
-                    )
+                    data_uri = await read_image_as_data_uri(photo.photo_url)
+                    if data_uri:
+                        photo_sas_map[photo.photo_url] = data_uri
 
     # 3) 스키마 조립
     report = service.build_report(

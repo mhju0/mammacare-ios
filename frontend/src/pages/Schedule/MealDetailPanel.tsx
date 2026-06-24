@@ -124,7 +124,6 @@ export function MealDetailPanel({ year, month, day, daysInMonth, meals, onSave, 
 
   const [editSuggestions, setEditSuggestions] = useState<{ index: number; recipes: ApiRecipe[] } | null>(null);
   const editSearchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const extractTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [currentEntry, setCurrentEntry] = useState<MealEntry>({
     name: "",
@@ -187,46 +186,6 @@ export function MealDetailPanel({ year, month, day, daysInMonth, meals, onSave, 
       }
     }, 300);
   };
-
-  // ── 식단 이름 타이핑 시 재료 자동 추출 (레시피 미선택 상태일 때만) ────────────
-  useEffect(() => {
-    const name = currentEntry.name.trim();
-    // recipe_id가 있으면 레시피에서 재료가 이미 채워지므로 skip
-    if (currentEntry.recipe_id || name.length < 2) return;
-
-    if (extractTimerRef.current) clearTimeout(extractTimerRef.current);
-    extractTimerRef.current = setTimeout(async () => {
-      if (!token) return;
-      try {
-        const data = await apiFetch<{ ingredients: Array<{ id: number; name: string; emoji: string | null }> }>(
-          "/ai/extract-ingredients",
-          { method: "POST", body: JSON.stringify({ name }) },
-          token,
-        );
-        if (data.ingredients.length > 0) {
-          // 타임아웃 실행 시점에 recipe_id가 생기면 덮어쓰지 않도록 함수형 업데이트 사용
-          setCurrentEntry((prev) => {
-            if (prev.recipe_id || prev.name.trim() !== name) return prev;
-            return {
-              ...prev,
-              ingredients: data.ingredients.map((i) => ({
-                id: i.id,
-                emoji: i.emoji ?? "",
-                name: i.name,
-                hasAllergy: allergies.includes(i.name),
-              })),
-            };
-          });
-        }
-      } catch {
-        // 추출 실패 시 무시 (재료 없는 상태로 진행)
-      }
-    }, 600);
-
-    return () => {
-      if (extractTimerRef.current) clearTimeout(extractTimerRef.current);
-    };
-  }, [currentEntry.name, currentEntry.recipe_id]);
 
   const handleSelectEditRecipe = (index: number, recipe: ApiRecipe) => {
     setEditSuggestions(null);

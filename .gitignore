@@ -1,6 +1,9 @@
 # --- ChromaDB (벡터 DB - 서버에서 ingest_knowledge.py로 재생성) ---
 backend/data/chroma_db/
 
+# --- 업로드 이미지 (로컬 파일 저장 - 커밋 금지) ---
+backend/uploads/
+
 # --- Python (FastAPI) ---
 __pycache__/
 *.py[cod]

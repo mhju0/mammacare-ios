@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import { AuthImage } from "../components/AuthImage";
 import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
 import type { ChangeEvent } from "react";
 import { Capacitor } from "@capacitor/core";
@@ -868,7 +869,7 @@ if (!newPost.content.trim()) {
                   {!!post.images?.length && (
                     <div className="flex gap-1.5 mt-1.5">
                       {post.images.slice(0, 1).map((image) => (
-                        <img
+                        <AuthImage
                           key={image.id}
                           src={image.sas_url ?? image.image_url}
                           alt="게시글 이미지"
@@ -1146,7 +1147,7 @@ if (!newPost.content.trim()) {
                 {!!selectedPost.images?.length && (
                   <div className={`${isApp ? "grid grid-cols-3" : "grid grid-cols-4"} gap-2 mt-4`}>
                     {selectedPost.images.map((image) => (
-                      <img
+                      <AuthImage
                         key={image.id}
                         src={image.sas_url ?? image.image_url}
                         alt="게시글 이미지"
@@ -1544,7 +1545,7 @@ if (!newPost.content.trim()) {
                 <div className={`${isApp ? "grid grid-cols-3" : "grid grid-cols-5"} gap-2`}>
                   {editingPost.images?.map((image) => (
                     <div key={image.id} className="relative aspect-square rounded-xl overflow-hidden border border-border bg-muted">
-                      <img src={image.sas_url ?? image.image_url} alt="기존 이미지" className="w-full h-full object-cover" />
+                      <AuthImage src={image.sas_url ?? image.image_url} alt="기존 이미지" className="w-full h-full object-cover" />
                       <button
                         type="button"
                         onClick={() => removeExistingImage(image.id)}
@@ -1611,7 +1612,7 @@ if (!newPost.content.trim()) {
             >
               <X className="w-4 h-4 sm:w-[18px] sm:h-[18px]" />
             </button>
-            <img
+            <AuthImage
               src={lightboxUrl}
               alt="확대 이미지"
               className="max-w-full max-h-[50vh] object-contain shadow-2xl"

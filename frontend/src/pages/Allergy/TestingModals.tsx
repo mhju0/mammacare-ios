@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
+import { AuthImage } from "../../components/AuthImage";
 import { AlertTriangle, CheckCircle, X, ChevronDown, ChevronUp, Camera, ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
 import { TimeDropdown } from "../Schedule/TimeDropdown";
 import {
@@ -111,7 +112,7 @@ function CheckRecord({ check, onDelete }: { check: SymptomCheckResponse; onDelet
           {check.symptom_photos.length > 0 && (
             <div className="flex gap-2 flex-wrap">
               {check.symptom_photos.map((photo) => (
-                <img
+                <AuthImage
                   key={photo.id}
                   src={photo.photo_url}
                   alt="증상 사진"

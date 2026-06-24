@@ -20,7 +20,7 @@ async def create_confirmed_allergy(
     # 확정 등록 시 해당 재료의 테스트 레코드를 상태 불문 모두 삭제한다.
     # "안전 통과(completed_safe)"가 확정 알레르기와 동시에 노출되는 것을 차단하고,
     # 반응(completed_reaction)·진행 중(testing)·예약(NULL)도 함께 정리한다.
-    # delete_ingredient_testing은 증상 사진(Azure blob)까지 함께 제거한다.
+    # delete_ingredient_testing은 증상 사진(로컬 파일)까지 함께 제거한다.
     testing_ids = (await db.execute(
         select(IngredientTesting.id).where(
             IngredientTesting.baby_id == data.baby_id,

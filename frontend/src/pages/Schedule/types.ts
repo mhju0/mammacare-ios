@@ -77,28 +77,6 @@ export interface ApiRecipe {
   steps?: string[];
 }
 
-// ── STT 타입 ──────────────────────────────────────────────────────────────────
-
-export interface SttIngredient {
-  ingredient_id: number;
-  name: string;
-  amount: number;
-}
-
-export interface SttMatchedRecipe {
-  recipe_id: string;
-  title: string;
-  ingredients: SttIngredient[];
-}
-
-export interface SttParseResult {
-  matched: SttMatchedRecipe[];
-  meal_date: string;
-  meal_time: string | null;
-  unmatched: boolean;
-  message: string;
-}
-
 export const weekDays = ["일", "월", "화", "수", "목", "금", "토"];
 
 export const today = new Date();
