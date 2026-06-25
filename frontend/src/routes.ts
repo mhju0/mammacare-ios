@@ -1,7 +1,7 @@
 import { createBrowserRouter, createHashRouter } from "react-router";
 import { Capacitor } from "@capacitor/core";
 import Layout from "./components/Layout";
-import Home from "./pages/Home";
+import HomeRoute from "./pages/HomeRoute";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Schedule from "./pages/Schedule";
@@ -38,7 +38,7 @@ export const router = createRouter([
     path: "/",
     Component: Layout,
     children: [
-      { index: true, Component: Home },
+      { index: true, Component: HomeRoute },
       { path: "login", Component: Login },
       { path: "signup", Component: Register },
       { path: "register", Component: Register },
