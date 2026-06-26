@@ -64,12 +64,7 @@ Thumbs.db
 # --- Docker & Secrets ---
 .env.local
 .env.*.local
-docker-compose.override.yml
-
-# --- Azure / Cloud (잔재 - 무해) ---
-.azure/
-*.publishsettings
-azuredeploy.parameters.json
+docker-compose.override.y.json
 
 # --- Firebase / GCP 서비스 계정 키 (절대 커밋 금지) ---
 firebase_credentials*.json
@@ -114,10 +109,7 @@ CLAUDE.md
 
 frontend/android/app/src/main/assets/public
 frontend/android/app/src/main/assets/capacitor.config.json
-frontend/android/app/src/main/assets/capacitor.plugins.json
-frontend/android/app/src/main/res/xml/config.xml
-
-**/capacitor-cordova-android-plugins
+frontend/anrdova-android-plugins
 
 frontend/android/app/google-services.json
 
