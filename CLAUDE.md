@@ -44,4 +44,12 @@ Claude Code가 **세션 시작 시 자동으로 읽는** 파일이다.
 - 알레르기 비교는 **`ingredient_id`** 기준(이름 문자열 아님) · 본인 리소스 아니면 **404** · 사용자 노출 에러 메시지 **한국어**
 - 비밀값/`.env`/`*.dump`(PII) **커밋 금지** · `git add [filepath]`만(전체 `.` 금지) · **명시적 지시 없이 commit/push/branch 전환 금지**
 
+## Workflow
+- 기본 루프: **`/ship <task>` → 구현 → self-review(빌드 게이트 + `code-reviewer` 서브에이전트) → 최종 보고.** 조사만 할 땐 `/readonly-audit`.
+- **커밋은 항상 사람이 실행** — 에이전트는 `git add/commit/push` 절대 금지. 보고서에 파일 목록(git add용) + 제안 커밋 메시지까지만.
+- 에스컬레이션(리뷰어 PASS여도 자동 통과 금지): manual_sql/스키마 · 알레르기 상태 전이 · auth/보안 · 삭제 경로 · 두 제출 핸들러 또는 `_status_from_dates`(2벌) 관련 → 최종 라인 `NEEDS SENIOR REVIEW`.
+- 알레르기/DB 작업은 `/ship` 런당 **1슬라이스**만.
+- 스킬 목록: `ship`(구현 루프) · `self-review`(구현 후 필수 게이트) · `readonly-audit`(조사) · `e2e-check`(데모 스파인 E2E) · `manual-sql`(스키마 변경 절차) · `design-polish`(UI, 화면당 1런).
+- 리뷰어: `.claude/agents/code-reviewer.md` — read-only 적대적 리뷰, 판정 PASS / PASS WITH NOTES / FAIL.
+
 <!-- 유지보수 메모(이 주석은 컨텍스트에 로드되지 않음): 이 파일은 매 세션 로드되므로 짧게 유지(<200줄, 가능하면 <100). 규칙은 AGENTS.md에서만 관리하고 여기선 중복하지 말 것. -->
