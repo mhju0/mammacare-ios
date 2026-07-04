@@ -50,5 +50,12 @@
 - [PROPOSED CUT] 대시보드 카운트 dedup 방어 코드 — A안 단일 행으로 구조적 해소, 데모·케이스 스터디 무관
 - [PROPOSED CUT] P3 3화면 밖 소소한 UI 폴리시 — 데모에 안 보이는 화면 폴리시는 scope creep
 - [PROPOSED CUT] 활성 아기 없을 때 빈 상태 "아기 등록 유도" 보강 — 데모는 아기 등록부터 시작하므로 현행 빈 상태로 충분(P1에서 반증되면 P2로 승격)
+- [ ] **Docker 워크스트림** (데모 녹화 이후 착수) — backend(FastAPI)+postgres를 docker-compose로 묶는 재현용 옵션. 로컬 개발 워크플로는 계속 native(루트 `venv` + brew `postgresql@16`), iOS 시뮬레이터 데모도 native localhost 백엔드 사용.
+  - 가드레일: compose postgres host 포트는 5432(brew native)·5433(filing-digest docker)와 안 겹치게 별도 포트(예: 5434) 사용.
+  - 가드레일: `.env` / JWT·OAuth·Firebase secret / `*.dump`(PII)는 이미지에 굽지 않고 커밋도 안 함 → `.dockerignore`로 제외.
+  - 가드레일: Azure/AI/Android 제외는 Docker 도입과 무관하게 계속 유지.
+  - 가드레일: 절대 규칙(Alembic 금지, `/api` prefix, RefreshToken 부활 금지, async/httpx/logging only)은 Docker와 무관하게 유지.
+- [ ] **프론트 정리 방향** — 전면 rebuild 안 함, delete-only. 구 웹 서비스 잔재는 라우트 단위 삭제로 정리해 iOS 중심 경험으로 좁힌다.
+  - Frontend dead-code purge 워크스트림: 데모 경로(로그인→대시보드 히어로→알레르기→리포트)에서 도달 불가능한 구 웹 서비스 페이지/라우트/컴포넌트를 식별해 라우트 단위로 삭제. 실제 삭제는 별도 READ-ONLY 인벤토리 후 진행 — 이번엔 방향만 기록.
 
 <!-- 갱신 규칙(컨텍스트에 로드되지 않음): 마일스톤 상태 추측 금지. read-only 감사로 [Verified]된 변화만 반영. [PROPOSED CUT]은 삭제하지 말 것 — 오너가 결정한다. -->
