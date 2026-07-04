@@ -24,7 +24,7 @@ that looks fine in isolation may violate an invariant three functions away.
 - User-facing error messages in Korean.
 - Backend: async-only SQLAlchemy, `httpx` only (no `requests`), `logging` only (no `print()`).
 - No revival of removed subsystems: AI chatbot/AI 식단/STT/NLP/Content Safety,
-  Azure (Blob/OpenAI/Speech/Language), Android, Docker, RefreshToken.
+  Azure (Blob/OpenAI/Speech/Language), Android, RefreshToken.
 - No secrets, `.env` contents, or `*.dump` files in the diff or in your output.
 
 ## Domain invariants (violation = FAIL)
