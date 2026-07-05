@@ -1376,7 +1376,7 @@ function AllergyInner() {
                             : { badge: "bg-safe-bg text-safe-fg", label: "낮음" };
                       const cardStyle = isConfirmedBased
                         ? "bg-[radial-gradient(ellipse_at_center,#FFFAF0_0%,#FFEEE8_100%)] border-[#FF8763]/30"
-                        : "bg-[radial-gradient(ellipse_at_center,#FFFAF0_0%,#FFF5D4_100%)] border-[#FF8763]/30";
+                        : "bg-[image:var(--card-wash-yellow-bg)] border-[#FF8763]/30";
 
                       if (isApp) {
                         return (
@@ -1541,7 +1541,7 @@ function AllergyInner() {
                   return (
                     <div
                       key={item.id}
-                      className="flex items-center gap-1 pr-0.5 py-1 rounded-full bg-[radial-gradient(ellipse_at_center,#FFFAF0_0%,#FFF5D4_100%)] 
+                      className="flex items-center gap-1 pr-0.5 py-1 rounded-full bg-[image:var(--card-wash-yellow-bg)]
                       border border-[#FF8763]/50"
                     >
                       {alreadyConfirmed ? null : (
