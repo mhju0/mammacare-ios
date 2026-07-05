@@ -115,7 +115,7 @@ export function TestingCard({ item, token, onRefresh }: TestingCardProps) {
           <button
             onClick={() => setShowRecord(true)}
             className={`flex items-center gap-1 px-3 py-1 rounded-3xl ${isApp ? "text-sm" : "text-base"} text-primary-foreground
-            bg-[#FEF5CC] hover:opacity-70 font-semibold transition-colors`}
+            bg-[var(--testing-track-bg)] hover:opacity-70 font-semibold transition-colors`}
           >
             반응 기록하기
           </button>
@@ -175,7 +175,7 @@ export function TestingCard({ item, token, onRefresh }: TestingCardProps) {
           </div>
         )}
         <div
-          className="h-2 bg-[#FEF5CC] rounded-full overflow-hidden"
+          className="h-2 bg-[var(--testing-track-bg)] rounded-full overflow-hidden"
           style={isApp ? { marginInline: `${100 / (TIME_MILESTONES.length * 2)}%` } : undefined}
         >
           <div
