@@ -61,6 +61,7 @@
   --action-soft-bg-hover: radial-gradient(ellipse at center, #D4EEFF 0%, #DBF2FF 100%);
   --card-wash-bg: radial-gradient(ellipse at center, #FFFAF0 0%, #FFFBE8 100%);
   --card-wash-yellow-bg: radial-gradient(ellipse at center, #FFFAF0 0%, #FFF5D4 100%);
+  --testing-track-bg: #FEF5CC;
 }
 
 .dark {
