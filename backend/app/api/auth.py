@@ -110,15 +110,3 @@ async def check_email(
     return AvailabilityResponse(
         available=await auth_service.email_available(db, normalized_email)
     )
-
-
-# [POST /auth/password-reset]
-@router.post("/password-reset", status_code=status.HTTP_501_NOT_IMPLEMENTED)
-async def password_reset() -> dict[str, str]:
-    return {"detail": "비밀번호 재설정은 Phase 2에서 제공됩니다."}
-
-
-# [POST /auth/verify-email]
-@router.post("/verify-email", status_code=status.HTTP_501_NOT_IMPLEMENTED)
-async def verify_email() -> dict[str, str]:
-    return {"detail": "이메일 인증은 Phase 2에서 제공됩니다."}
