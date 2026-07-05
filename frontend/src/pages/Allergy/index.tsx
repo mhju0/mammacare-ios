@@ -1159,7 +1159,7 @@ function AllergyInner() {
 
       {/* 1. 현재 테스트 중인 재료 */}
       <div
-        className={`bg-[radial-gradient(ellipse_at_center,#FFFAF0_0%,#FFFBE8_100%)] border border-border rounded-3xl py-3 mb-6 ${
+        className={`bg-[image:var(--card-wash-bg)] border border-border rounded-3xl py-3 mb-6 ${
           isApp ? "px-3" : "px-5"
         }`}
       >
@@ -1209,7 +1209,7 @@ function AllergyInner() {
       </div>
 
       {/* 2. AI 의심 재료 분석 */}
-      <div className="bg-[radial-gradient(ellipse_at_center,#FFFAF0_0%,#FFFBE8_100%)] border border-border rounded-3xl py-3 mb-6">
+      <div className="bg-[image:var(--card-wash-bg)] border border-border rounded-3xl py-3 mb-6">
         <div className="flex items-center gap-1.5 mb-1 px-5">
           <Sparkles size={18} />
           <h2 className={`font-bold ${isApp ? "text-base" : "text-lg"}`}>AI 의심 재료 분석</h2>
@@ -1453,7 +1453,7 @@ function AllergyInner() {
 
       {/* 3·4. 안전하게 통과한 재료 / 알레르기 반응 재료 */}
       <div className={isApp ? "flex flex-col" : "grid md:grid-cols-2 gap-6"}>
-        <div className="bg-[radial-gradient(ellipse_at_center,#FFFAF0_0%,#FFFBE8_100%)] border border-border rounded-3xl py-3 px-5 mb-6">
+        <div className="bg-[image:var(--card-wash-bg)] border border-border rounded-3xl py-3 px-5 mb-6">
           <div className="flex items-center justify-between mb-3">
             <h2 className={`font-bold ${isApp ? "text-base" : "text-lg"} flex items-center gap-1.5`}>
               <CheckCircle size={18} />
@@ -1513,7 +1513,7 @@ function AllergyInner() {
           )}
         </div>
 
-        <div className="bg-[radial-gradient(ellipse_at_center,#FFFAF0_0%,#FFFBE8_100%)] border border-border rounded-3xl py-3 px-5 mb-6">
+        <div className="bg-[image:var(--card-wash-bg)] border border-border rounded-3xl py-3 px-5 mb-6">
           <div className="flex items-center justify-between mb-3">
             <h2 className={`font-bold ${isApp ? "text-base" : "text-lg"} flex items-center gap-1.5`}>
               <AlertTriangle size={18} />
@@ -1606,7 +1606,7 @@ function AllergyInner() {
       </div>
 
       {/* 4. 알레르기 확정 재료 */}
-      <div className="bg-[radial-gradient(ellipse_at_center,#FFFAF0_0%,#FFFBE8_100%)] 
+      <div className="bg-[image:var(--card-wash-bg)] 
       border border-border rounded-3xl py-3 px-5 mb-6">
         <div className="flex items-center justify-between mb-3">
           <h2 className={`font-bold ${isApp ? "text-base" : "text-lg"} flex items-center gap-1.5`}>
@@ -1652,7 +1652,7 @@ function AllergyInner() {
       </div>
 
       {/* 5. 이상 반응 자동 리포트 생성 */}
-      <div className="bg-[radial-gradient(ellipse_at_center,#FFFAF0_0%,#FFFBE8_100%)] border border-border rounded-3xl py-3 px-5 mb-6">
+      <div className="bg-[image:var(--card-wash-bg)] border border-border rounded-3xl py-3 px-5 mb-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className={`font-bold ${isApp ? "text-base" : "text-lg"} flex items-center gap-1.5`}>
             <FileText size={18} />
