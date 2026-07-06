@@ -17,14 +17,28 @@ const HOSPITAL_CATEGORIES = [
 
 const FEATURED_KEYS = ["소아과", "피부과의원", "병원 응급실"] as const;
 
+// 모든 실패 경로에서 로딩이 영구 지속되지 않도록 한국어 에러 문구를 표준화한다.
+const ERR_GENERIC = "주변 병원 정보를 불러오지 못했어요";
+const ERR_LOCATION_DENIED = "위치 권한을 허용하면 주변 병원을 안내해 드려요";
+
+// 응답이 없는 Promise가 로딩을 영구 고착시키지 않도록 타임아웃으로 감싼다.
+function withTimeout<T>(promise: Promise<T>, ms: number, message: string): Promise<T> {
+  let timer: ReturnType<typeof setTimeout>;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error(message)), ms);
+  });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+}
+
 async function getCoords(): Promise<{ latitude: number; longitude: number }> {
   if (Capacitor.isNativePlatform()) {
     let perm = await Geolocation.checkPermissions();
     if (perm.location !== "granted" && perm.coarseLocation !== "granted") {
-      perm = await Geolocation.requestPermissions();
+      // Info.plist 사용목적 키 누락 등으로 권한 콜백이 영구 대기하는 경우를 15s로 끊는다.
+      perm = await withTimeout(Geolocation.requestPermissions(), 15000, "위치 권한 요청이 응답하지 않습니다.");
     }
     if (perm.location !== "granted" && perm.coarseLocation !== "granted") {
-      throw Object.assign(new Error("위치 권한이 거부되었습니다. 앱 설정 > 맘마케어 > 위치에서 권한을 허용해주세요."), { code: 1 });
+      throw Object.assign(new Error("위치 권한이 거부되었습니다."), { code: 1 });
     }
     const pos = await Geolocation.getCurrentPosition({
       enableHighAccuracy: perm.location === "granted",
@@ -41,6 +55,7 @@ async function getCoords(): Promise<{ latitude: number; longitude: number }> {
     navigator.geolocation.getCurrentPosition(
       (pos) => resolve({ latitude: pos.coords.latitude, longitude: pos.coords.longitude }),
       (err) => reject(err),
+      { timeout: 10000, maximumAge: 60000 },
     );
   });
 }
@@ -66,7 +81,7 @@ export function HospitalFinder() {
     setHospitalSearched(false);
 
     if (!isApp && !window.kakao?.maps?.load) {
-      setHospitalError("카카오 지도 SDK를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.");
+      setHospitalError(ERR_GENERIC);
       setHospitalLoading(false);
       return;
     }
@@ -78,15 +93,7 @@ export function HospitalFinder() {
     } catch (err: unknown) {
       setHospitalLoading(false);
       const code = (err as { code?: number }).code;
-      if (code === 1) {
-        setHospitalError(
-          isApp
-            ? "위치 권한이 거부되었습니다. 앱 설정 > 맘마케어 > 위치에서 권한을 허용해주세요."
-            : "위치 권한이 거부되었습니다. 브라우저 주소창의 자물쇠 아이콘을 클릭하여 위치 권한을 허용해주세요.",
-        );
-      } else {
-        setHospitalError(err instanceof Error ? err.message : "위치를 가져오지 못했습니다. 잠시 후 다시 시도해주세요.");
-      }
+      setHospitalError(code === 1 ? ERR_LOCATION_DENIED : ERR_GENERIC);
       return;
     }
 
@@ -119,7 +126,7 @@ export function HospitalFinder() {
       } catch (err) {
         const canFallbackToSdk = err instanceof ApiError && [404, 502, 503].includes(err.status);
         if (!canFallbackToSdk) {
-          setHospitalError(err instanceof Error ? err.message : "위치 기반 병원 검색에 실패했습니다. 다시 시도해주세요.");
+          setHospitalError(ERR_GENERIC);
           setHospitalLoading(false);
           return;
         }
@@ -128,20 +135,15 @@ export function HospitalFinder() {
 
     if (!window.kakao?.maps?.load) {
       setHospitalLoading(false);
-      setHospitalError(
-        isApp
-          ? "병원 검색 서비스가 일시적으로 이용 불가합니다. 잠시 후 다시 시도해주세요."
-          : "카카오 지도 서비스를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.",
-      );
+      setHospitalError(ERR_GENERIC);
       return;
     }
 
-    const searchTimeout = isApp
-      ? window.setTimeout(() => {
-          setHospitalLoading(false);
-          setHospitalError("카카오 지도·로컬 서비스가 응답하지 않습니다. 서비스 설정을 확인해주세요.");
-        }, 12000)
-      : null;
+    // 웹·네이티브 공통: kakao.maps.load / keywordSearch 콜백이 미도달해도 12s 후 로딩을 끊는다.
+    const searchTimeout = window.setTimeout(() => {
+      setHospitalLoading(false);
+      setHospitalError(ERR_GENERIC);
+    }, 12000);
 
     window.kakao.maps.load(() => {
       try {
@@ -172,7 +174,7 @@ export function HospitalFinder() {
               completed++;
 
               if (completed === HOSPITAL_CATEGORIES.length) {
-                if (searchTimeout !== null) window.clearTimeout(searchTimeout);
+                window.clearTimeout(searchTimeout);
                 const featured: { label: string; place: KakaoPlace }[] = [];
                 FEATURED_KEYS.forEach((cat) => {
                   const place = resultsMap[cat]?.[0];
@@ -195,15 +197,17 @@ export function HospitalFinder() {
                 setAllHospitals(all);
                 setHospitalLoading(false);
                 setHospitalSearched(true);
+                setHospitalError(""); // 12s 타임아웃이 먼저 뜬 뒤 늦게 성공한 경우 에러+결과 동시 노출 방지
+
               }
             },
             { location: loc, radius: 2000, sort: window.kakao.maps.services.SortBy.DISTANCE },
           );
         });
       } catch {
-        if (searchTimeout !== null) window.clearTimeout(searchTimeout);
+        window.clearTimeout(searchTimeout);
         setHospitalLoading(false);
-        setHospitalError("위치 기반 병원 검색에 실패했습니다. 다시 시도해주세요.");
+        setHospitalError(ERR_GENERIC);
       }
     });
   };
