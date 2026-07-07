@@ -16,6 +16,7 @@ import {
 import { getRecommendations } from "../api/recommendations";
 import type { IngredientResponse } from "../api/ingredients";
 import { getElapsedHours } from "./Allergy/types";
+import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { Skeleton } from "../components/ui/skeleton";
 import { StatusChip, statusFromTestStatus } from "../components/ui/status-chip";
@@ -188,6 +189,15 @@ export default function Dashboard() {
             </div>
           )}
         </section>
+
+        {/* 새 재료 테스트 CTA */}
+        <Button
+          variant="warmPrimary"
+          onClick={() => navigate("/allergy")}
+          className="h-12 w-full rounded-full text-base font-bold"
+        >
+          새 재료 테스트 시작하기
+        </Button>
 
         {/* 2) 다음 도입 추천 */}
         <section>
