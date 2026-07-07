@@ -31,15 +31,19 @@ export const STATUS_META: Record<TestStatus, { label: string; className: string 
 function CheckRecord({ check, onDelete }: { check: SymptomCheckResponse; onDelete?: () => Promise<void> }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
   const handleDelete = async () => {
     if (!onDelete) return;
     setDeleting(true);
+    setDeleteError("");
     try {
       await onDelete();
+      setConfirmDelete(false);
+    } catch (e) {
+      setDeleteError(e instanceof Error ? e.message : "삭제에 실패했습니다.");
     } finally {
       setDeleting(false);
-      setConfirmDelete(false);
     }
   };
 
@@ -53,7 +57,10 @@ function CheckRecord({ check, onDelete }: { check: SymptomCheckResponse; onDelet
           confirmDelete ? (
             <div className="flex items-center gap-1 flex-shrink-0 ml-1">
               <button
-                onClick={() => setConfirmDelete(false)}
+                onClick={() => {
+                  setConfirmDelete(false);
+                  setDeleteError("");
+                }}
                 disabled={deleting}
                 className="text-xs px-2 py-0.5 rounded-full border border-border hover:bg-muted transition-colors"
               >
@@ -77,6 +84,11 @@ function CheckRecord({ check, onDelete }: { check: SymptomCheckResponse; onDelet
           )
         )}
       </div>
+      {deleteError && (
+        <div className="mb-3 px-3 py-2 bg-destructive/10 border border-destructive/30 rounded-xl text-xs text-destructive font-semibold">
+          {deleteError}
+        </div>
+      )}
       {check.has_reaction ? (
         <>
           <div className="flex items-center gap-2 rounded-3xl mb-4">

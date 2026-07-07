@@ -234,12 +234,15 @@ function NutritionInner() {
   const [weeklyData, setWeeklyData] = useState<WeeklySummaryApi | null>(null);
   const [recommendedData, setRecommendedData] = useState<RecommendedIngredientsApi | null>(null);
   const [loading, setLoading] = useState(false);
+  const [weeklyError, setWeeklyError] = useState("");
   const [recommendLoading, setRecommendLoading] = useState(false);
+  const [recommendError, setRecommendError] = useState("");
   const [showTutorial, setShowTutorial] = useState(false);
 
   const fetchRecommended = useCallback(async (lackingNutrients: string[] = []) => {
     if (!activeBaby || !token) return;
     setRecommendLoading(true);
+    setRecommendError("");
     try {
       const params = new URLSearchParams({ baby_id: activeBaby.id });
       lackingNutrients.forEach((n) => params.append("lacking_nutrients", n));
@@ -251,32 +254,39 @@ function NutritionInner() {
       setRecommendedData(data);
     } catch (e) {
       console.error(e);
+      setRecommendError("추천 재료를 불러오지 못했어요");
     } finally {
       setRecommendLoading(false);
     }
   }, [activeBaby?.id, token]);
 
-  useEffect(() => {
+  const fetchWeekly = useCallback(async () => {
     if (!activeBaby || !token) return;
     setLoading(true);
-    apiFetch<WeeklySummaryApi>(
-      `/nutrition/weekly-summary?baby_id=${activeBaby.id}`,
-      {},
-      token,
-    )
-      .then((weekly) => {
-        setWeeklyData(weekly);
-        const lacking = weekly.nutrients
-          .filter((n) => n.status === "보완")
-          .map((n) => n.name);
-        fetchRecommended(lacking);
-      })
-      .catch((e) => {
-        console.error(e);
-        fetchRecommended([]);
-      })
-      .finally(() => setLoading(false));
-  }, [activeBaby?.id, token]);
+    setWeeklyError("");
+    try {
+      const weekly = await apiFetch<WeeklySummaryApi>(
+        `/nutrition/weekly-summary?baby_id=${activeBaby.id}`,
+        {},
+        token,
+      );
+      setWeeklyData(weekly);
+      const lacking = weekly.nutrients
+        .filter((n) => n.status === "보완")
+        .map((n) => n.name);
+      fetchRecommended(lacking);
+    } catch (e) {
+      console.error(e);
+      setWeeklyError("지난 7일 영양 상태를 불러오지 못했어요");
+      fetchRecommended([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [activeBaby?.id, token, fetchRecommended]);
+
+  useEffect(() => {
+    fetchWeekly();
+  }, [fetchWeekly]);
 
   const handleRefresh = () => {
     const lacking = weeklyData?.nutrients.filter((n) => n.status === "보완").map((n) => n.name) ?? [];
@@ -387,14 +397,28 @@ function NutritionInner() {
 
         </div>
 
+        {weeklyError && (
+          <div className="mb-3 px-4 py-3 bg-destructive/10 border border-destructive/30 rounded-2xl text-base text-destructive flex items-center justify-between gap-3">
+            <span>{weeklyError}</span>
+            <button
+              onClick={fetchWeekly}
+              className="shrink-0 px-4 py-1.5 bg-[image:var(--action-soft-bg)] hover:bg-[image:var(--action-soft-bg-hover)] text-primary-foreground shadow-sm text-sm font-bold rounded-full"
+            >
+              다시 시도
+            </button>
+          </div>
+        )}
+
         {loading ? (
           <div className={`text-center py-8 text-muted-foreground ${isApp ? "text-sm" : "text-lg"}`}>불러오는 중...</div>
         ) : nutrients.length === 0 ? (
-          <div className={`text-center py-8 text-muted-foreground ${isApp ? "text-sm" : "text-lg"}`}>
-            {weeklyData && weeklyData.total_meals > 0
-              ? weeklyData.message ?? "최근 식단 기록이 아직 적어 영양 균형 분석을 표시하기 어렵습니다."
-              : "지난 7일간 완료된 식단 기록이 없습니다"}
-          </div>
+          weeklyError ? null : (
+            <div className={`text-center py-8 text-muted-foreground ${isApp ? "text-sm" : "text-lg"}`}>
+              {weeklyData && weeklyData.total_meals > 0
+                ? weeklyData.message ?? "최근 식단 기록이 아직 적어 영양 균형 분석을 표시하기 어렵습니다."
+                : "지난 7일간 완료된 식단 기록이 없습니다"}
+            </div>
+          )
         ) : (
           <div className={isApp ? "flex flex-col gap-3" : "grid md:grid-cols-2 gap-6"}>
             <div className="space-y-3">
@@ -532,14 +556,28 @@ function NutritionInner() {
             )}
           </p>
 
+          {recommendError && (
+            <div className="mb-3 px-4 py-3 bg-destructive/10 border border-destructive/30 rounded-2xl text-base text-destructive flex items-center justify-between gap-3">
+              <span>{recommendError}</span>
+              <button
+                onClick={handleRefresh}
+                className="shrink-0 px-4 py-1.5 bg-[image:var(--action-soft-bg)] hover:bg-[image:var(--action-soft-bg-hover)] text-primary-foreground shadow-sm text-sm font-bold rounded-full"
+              >
+                다시 시도
+              </button>
+            </div>
+          )}
+
           {recommendLoading ? (
             <div className={`flex items-center justify-center min-h-[210px] text-muted-foreground ${isApp ? "text-sm" : "text-lg"}`}>
               불러오는 중...
             </div>
           ) : recommendedIngredients.length === 0 ? (
-            <div className={`flex items-center justify-center min-h-[210px] text-muted-foreground ${isApp ? "text-sm" : "text-lg"} text-center`}>
-              이 개월 수에 맞는 추천 재료가 없습니다
-            </div>
+            recommendError ? null : (
+              <div className={`flex items-center justify-center min-h-[210px] text-muted-foreground ${isApp ? "text-sm" : "text-lg"} text-center`}>
+                이 개월 수에 맞는 추천 재료가 없습니다
+              </div>
+            )
           ) : (
             <>
               <div className="grid grid-cols-2 gap-1.5 sm:gap-2 lg:gap-3">
