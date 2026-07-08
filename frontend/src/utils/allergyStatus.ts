@@ -1,25 +1,24 @@
 // Shared, pure derivation of per-(baby, ingredient) allergy status.
 //
 // Both the Dashboard traffic-light hero and the Allergy screen classify testing
-// rows into safe / testing / reaction. The two screens partition on DIFFERENT
-// axes — the Dashboard counts raw rows (safe/testing/reaction), while the Allergy
-// screen buckets deduped ingredients and also excludes confirmed allergens — so
-// the canonical record retains BOTH the raw testing status and the confirmed
-// flag rather than collapsing into a single enum. Consumers wrap these in
-// useMemo; nothing here touches React state or lifecycle.
+// rows into safe / testing / reaction. The Dashboard hero counts DISTINCT
+// ingredients (deduped to the latest row per ingredient) so historical duplicate
+// rows — retest is an in-place window advance, but pre-policy duplicates exist in
+// the DB — don't over-count. The Allergy screen dedups its safe/reaction buckets
+// the same way but keeps its testing bucket per-row and additionally excludes
+// confirmed allergens; the canonical record therefore retains the raw testing
+// status and the confirmed flag rather than collapsing into a single enum.
+// Consumers wrap these in useMemo; nothing here touches React state or lifecycle.
 //
-// The chip label reuses the canonical `statusFromTestStatus` primitive. Note
-// that primitive resolves `completed_safe` to "safe" even when `has_reaction` is
-// set, whereas the count/bucket selectors below intentionally give a reaction the
-// priority (`completed_reaction || has_reaction`) — this mirrors the two screens'
-// existing inline logic exactly and must not be "unified" onto the chip rule.
+// The count/bucket selectors below intentionally give a reaction the priority
+// (`completed_reaction || has_reaction`) — this mirrors the two screens' existing
+// inline logic exactly.
 
 import type {
   IngredientTestingResponse,
   ConfirmedAllergyResponse,
   TestStatus,
 } from "../api/allergy";
-import { statusFromTestStatus, type ChipStatus } from "../components/ui/status-chip";
 
 export interface IngredientStatusRecord {
   /** The original testing row, retained losslessly for rendering. */
@@ -30,8 +29,6 @@ export interface IngredientStatusRecord {
   hasReaction: boolean;
   /** True when this ingredient is on the baby's confirmed-allergy list. */
   isConfirmedAllergen: boolean;
-  /** Display status via the shared chip primitive (safe/testing/reaction). */
-  chipStatus: ChipStatus;
 }
 
 /**
@@ -50,7 +47,6 @@ export function deriveIngredientStatuses(
     testStatus: t.test_status,
     hasReaction: t.has_reaction,
     isConfirmedAllergen: confirmedIds.has(t.ingredient_id),
-    chipStatus: statusFromTestStatus((t.test_status ?? "testing") as TestStatus, t.has_reaction),
   }));
 }
 
@@ -61,17 +57,20 @@ export interface DashboardCounts {
 }
 
 /**
- * Dashboard traffic-light counts. Tallies every row (no dedup, no confirmed
- * exclusion — the Dashboard never fetches confirmed allergies) with reaction
- * taking priority, exactly matching the screen's inline loop.
+ * Dashboard traffic-light counts. Counts DISTINCT ingredients — deduped to the
+ * latest row per ingredient via the shared rule, so historical duplicate rows
+ * don't inflate the tally — then classifies each surviving row with reaction
+ * taking priority. No confirmed exclusion (the Dashboard never fetches confirmed
+ * allergies). An ingredient with no testing row appears in none of the three.
  */
 export function toDashboardCounts(records: IngredientStatusRecord[]): DashboardCounts {
+  const rows = dedupeByIngredientLatest(records.map((r) => r.testing));
   let safe = 0;
   let testing = 0;
   let reaction = 0;
-  for (const r of records) {
-    if (r.testStatus === "completed_reaction" || r.hasReaction) reaction += 1;
-    else if (r.testStatus === "completed_safe") safe += 1;
+  for (const t of rows) {
+    if (t.test_status === "completed_reaction" || t.has_reaction) reaction += 1;
+    else if (t.test_status === "completed_safe") safe += 1;
     else testing += 1;
   }
   return { safe, testing, reaction };
