@@ -51,10 +51,18 @@
 
 ## 남은 작업 — 데모 크리티컬 패스 순
 
-### P1 — 브라우저 E2E 1회차 (M3 close gate)
-- [ ] 데모 스파인 실클릭: 아기 등록→대시보드→도입 시작→3일 진행바→반응 기록→즉시 빨강→교차반응 경고→음식 여권 PDF(한글 폰트)
-- [ ] 동의 게이트 5체크(빨강 재제출 다이얼로그·취소 무변경·재테스트 진행·초록 안 뜸·신규 안 뜸·취소 버튼 시각 무게)
-- [ ] 보너스: 재테스트 후 잔존 SymptomCheck/고아 이미지 0, 미래 예약 테스트 즉시 확정 안 됨
+### P1 — 브라우저 E2E 1회차 (M3 close gate) ✅ 2026-07-13 [Verified, 실클릭]
+데모 스파인 6/6 PASS · 동의 게이트 4/5 PASS(1 미실행). 신규 계정 `e2etest0713`+아기 지후(10개월)로 실클릭.
+- [x] 데모 스파인: 로그인→대시보드 히어로 → 새우 도입 시작(테스트중+1·72h 타임라인·in-progress 행) → 대시보드 "3일 중 1일째"·Observe day stepper Day1 → 반응 기록→즉시 빨강 completed_reaction(반응+1) → 교차반응 경고(새우→게/가재/바닷가재 높음, 낙지/오징어/문어 낮음, SDAP 2.0) → 음식여권 PDF **한글 정상**(JPEG 라스터 육안 확인).
+- [x] 동의 게이트: ①빨강(새우) 재제출→ReactionRetestConfirm 다이얼로그 ✓ ②취소→무변경·선택유지 ✓ ④신규(감자)→다이얼로그 안 뜸 ✓ ⑤취소 버튼 시각 무게(solid blue) > 다시 테스트 시작(outline) ✓ / ③초록 재테스트 미실행(completed_safe 재료 필요 — 게이트 스코프는 ①+④로 검증됨).
+- [ ] 보너스(재테스트 고아 이미지·미래 예약) — 미실행(P4 iOS 재검증 때).
+
+#### P2 백로그 — P1에서 발견 (심각도순)
+- [ ] **[Med/UX] 회원가입이 주소를 강제** — 주소 검색 팝업(외부 우편번호 서비스)이 이 환경에서 **빈 화면**으로 뜸 → UI 신규가입 불가. API는 `SignupRequest.address: str | None`(선택)이므로 **프론트 단독 강제**. 알레르기 도구가 집 주소를 받는 것 자체가 불필요 PII(포지셔닝/프라이버시 서사와 충돌). **결정 필요: 주소 필드 제거 vs 선택화.** (auth 터치 → NEEDS SENIOR REVIEW)
+- [ ] **[Med] signup의 inline `baby_profile` 경로 항상 500** — `auth_service.signup`이 `baby_payload.birth_year/feeding_status/photo/height…`를 읽지만 `BabyCreate`엔 `birth_date/…`만 존재 → AttributeError를 bare `except`가 **로그 없이** 삼킴. 실제 UI는 signup 전에 baby_profile을 떼고 `/babies`로 따로 생성하므로 **도달 불가 데드코드**지만 landmine + 무로그. 조치: `SignupRequest.baby_profile` 필드 + 죽은 분기 제거, 또는 그 except에 로깅. (auth/schema 터치 → NEEDS SENIOR REVIEW)
+- [ ] **[Med/이식성] 리포트 PDF 한글 폰트가 시스템 폰트 fallback 의존** — `report.html`은 `font-family:'Pretendard'`인데 `@font-face` 번들 없음. macOS는 AppleSDGothicNeo로 fallback되어 정상이지만, **한글 시스템 폰트 없는 최소 Linux/Docker 이미지에선 깨짐**. Docker 워크스트림 전 `@font-face`로 한글 폰트 번들 필요.
+- [ ] **[Low] 대시보드 "진행 중인 테스트" 카드 → Observe 딥링크 미확인** — 좌표 클릭으로 네비게이션 안 됨(직접 URL로는 Observe 정상). 실제 버그인지 클릭 타깃 미스인지 재확인 필요.
+- [ ] **[Low/P5] 마케팅 홈 "안드로이드 앱 다운로드" 버튼** — android 제거 서사와 모순(P5 데드코드 항목 보강).
 - 절차·증거 형식: `.claude/skills/e2e-check/` (체크리스트 포함)
 
 ### P2 — E2E 발견 사항 fix pass
