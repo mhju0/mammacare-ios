@@ -7,10 +7,15 @@
 - 최종 산출물은 **iOS 앱 단독**. 웹 서비스는 제공하지 않는다.
 - React/Vite 코드는 **Capacitor iOS 빌드의 소스**이자 **개발 중 브라우저 E2E 도구**로 유지한다.
   삭제 대상은 "웹 서비스 전용 표면"(웹 배포 설정, 마케팅 홈 등)이며, READ-ONLY 인벤토리 후 delete-only 슬라이스로 진행한다.
+- **공개 목표: 채용 담당자가 클론 없이 5분 안에 평가할 수 있는 공개 GitHub 저장소.**
+  스크린샷 + 데모 GIF가 상단에 박힌 README, 마감된 케이스 스터디, 신규 클론 재현 가능한 SETUP, 1분 데모 영상.
+  세부 항목은 하단 **R — GitHub 공개 체크리스트**.
 
 ## 현재 위치
 - **M0~M3 코드 레벨 완료(전부 2026-06). 실클릭 E2E 0회 — 지금까지 검증은 전부 code-tracing.**
-- 다음 한 걸음: **P1 브라우저 E2E 1회차** (`/e2e-check` 스킬 사용). 이것이 M3의 done gate.
+- **warm-kr 디자인 오버홀 진행 중(2026-07)** — 기준 시안 `docs/mocks/warm-kr/`(da248e2), 토큰 레이어 `theme.css:68~`(4bf2fac), Dashboard(42f7622)·Observe(2bd4e2c) 적용 커밋됨. Allergy 포함 나머지 화면 20개는 구 clinic 토큰 그대로 [Verified 2026-07-13, grep].
+- **미커밋 WIP 슬라이스 1개** — 식재료 도감(`pages/Ingredients/` 신규 + `/ingredients` 라우트 + 대시보드 진입 링크) + 반응 재테스트 동의 게이트를 `components/ReactionRetestConfirm.tsx`로 추출(Allergy·Ingredients 공유, 카피 verbatim). `pnpm build` 통과 [Verified 2026-07-13]. **동의 게이트 접점 → 커밋 전 NEEDS SENIOR REVIEW.**
+- 다음 한 걸음: ① WIP 슬라이스 리뷰 → 커밋, ② **P1 브라우저 E2E 1회차** (`/e2e-check` 스킬 사용). P1이 M3의 done gate.
 
 ---
 
@@ -44,11 +49,15 @@
 ### P2 — E2E 발견 사항 fix pass
 - [ ] P1에서 나온 결함 심각도순 수정. 알레르기/DB 로직은 **런당 1슬라이스** (`/ship` 루프).
 
-### P3 — 디자인 폴리시 (3화면 한정, token-only)
-- [ ] 대시보드 히어로
-- [ ] 알레르기 타임라인
-- [ ] 리포트 화면
-- 절차: `.claude/skills/design-polish/` (hex 하드코딩 게이트 포함). 알려진 위반: 동의 다이얼로그 인라인 hex 그라디언트 `frontend/src/pages/Allergy/index.tsx:2644`.
+### P3 — 디자인 폴리시 = warm-kr 마이그레이션 (데모 3화면 한정, token-only)
+기준 시안: `docs/mocks/warm-kr/`. 커버리지·미생성 시안·생성 절차·외부 레퍼런스는 **`docs/mocks/README.md`**.
+- [x] 대시보드 히어로 — warm-kr 적용 커밋됨(42f7622) [Verified]
+- [ ] 알레르기 화면(타임라인 포함) — 최대 잔여 화면. 시안 미생성 → 시안부터
+- [ ] 리포트 화면(음식 여권) — 시안 미생성 → 시안부터
+- [ ] 동의 다이얼로그 취소 버튼의 clinic-블루 그라디언트(`--action-soft-bg`, theme.css:60) — warm-kr 세계관과 불일치. 구 "인라인 hex 위반"은 토큰화로 해소됨 [Verified 2026-07-13]
+- [ ] BottomNav 재구성 결정 — 시안은 Home/Ingredients/Observe/Reports/Profile 5탭, 현재 `Layout.tsx`는 메뉴/일정/홈/알레르기/커뮤니티. P5 데드코드 퍼지와 함께 결정(오너 결정 사항)
+- 절차: `.claude/skills/design-polish/` (hex 하드코딩 게이트 포함), 런당 1화면.
+- 데모 경로 밖 화면(Community/Nutrition/Recipes/Schedule 등)은 **폴리시 금지** — P5 퍼지에서 삭제 여부부터 결정한다(삭제할 화면을 재도색하지 않는다).
 
 ### P4 — iOS 시뮬레이터 E2E + 패키징
 - [ ] iOS 시뮬레이터에서 데모 스파인 1회 재검증
@@ -70,5 +79,15 @@
   - 가드레일: 절대 규칙(Alembic 금지, `/api` prefix, RefreshToken 부활 금지, async/httpx/logging only)은 Docker와 무관하게 유지.
 - [ ] **프론트 정리 방향** — 전면 rebuild 안 함, delete-only. 구 웹 서비스 잔재는 라우트 단위 삭제로 정리해 iOS 중심 경험으로 좁힌다.
   - Frontend dead-code purge 워크스트림: 데모 경로(로그인→대시보드 히어로→알레르기→리포트)에서 도달 불가능한 구 웹 서비스 페이지/라우트/컴포넌트를 식별해 라우트 단위로 삭제. 실제 삭제는 별도 READ-ONLY 인벤토리 후 진행 — 이번엔 방향만 기록.
+
+### R — GitHub 공개 체크리스트 (P4 산출물 이후, 최종 게이트)
+> 목표: 채용 담당자가 클론 없이 5분 안에 "잘 만든 프로젝트"라고 판단할 수 있는 저장소.
+- [ ] README 히어로 재구성 — 스크린샷 3컷 + 데모 GIF를 최상단에, 그 아래 **영어 TL;DR 1문단**(비한국어 리뷰어용) 추가, 한국어 본문은 유지
+- [ ] 아키텍처 다이어그램 1장 — README 내 mermaid 코드블록이면 충분(이미지 파일 불필요)
+- [ ] `docs/CASE_STUDY.draft.md` → `docs/CASE_STUDY.md` 마감 (P4의 정량 지표 채움과 동일 항목)
+- [x] 비밀값 히스토리 위생 — 전 히스토리에 `.env`/`*.dump`/`*.pem` 추가 이력 없음 [Verified 2026-07-13, `git log --all --diff-filter=A`]
+- [x] LICENSE(MIT) 존재(158ac53) + `frontend/package.json` `license: "MIT"` 필드 [Verified 2026-07-13]
+- [ ] 저장소 About 1줄 + topics 설정(fastapi, react, typescript, capacitor, allergy-tracking) — GitHub UI에서 수동
+- [ ] 공개 직전 최종 게이트 — 신규 클론에서 `SETUP.md` 그대로 재현: backend import + `pnpm build` + 데모 스파인 1회
 
 <!-- 갱신 규칙(컨텍스트에 로드되지 않음): 마일스톤 상태 추측 금지. read-only 감사로 [Verified]된 변화만 반영. [PROPOSED CUT]은 삭제하지 말 것 — 오너가 결정한다. -->
