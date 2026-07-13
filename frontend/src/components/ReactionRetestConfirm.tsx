@@ -32,11 +32,11 @@ export function ReactionRetestConfirm({
           </p>
         </div>
         <div className="flex flex-col gap-2">
+          {/* 취소가 시각적 primary(안전 디폴트) — solid warm-brand가 아래 연한 빨강보다 무겁다 */}
           <button
             onClick={onCancel}
-            className="w-full py-3 rounded-full bg-[image:var(--action-soft-bg)]
-            hover:bg-[image:var(--action-soft-bg-hover)]
-            text-primary-foreground font-bold text-base transition-opacity"
+            className="w-full py-3 rounded-full bg-warm-brand hover:bg-warm-brand-hover
+            text-warm-brand-fg font-bold text-base transition-colors"
           >
             취소
           </button>
