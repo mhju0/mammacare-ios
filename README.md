@@ -16,6 +16,8 @@
 |---|---|---|---|
 | ![대시보드 신호등 히어로](docs/screenshots/dashboard.png) | ![식재료 도감 스탬프 그리드](docs/screenshots/ingredients.png) | ![72시간 관찰 타임라인](docs/screenshots/observe.png) | ![반응 재료 재테스트 동의 게이트 데모](docs/screenshots/demo-moment.gif) |
 
+▶️ **[1분 데모 영상 (iOS 시뮬레이터 녹화, mp4)](https://github.com/mhju0/mammacare-ios/releases/download/v0.9-demo/mammacare-demo-1min.mp4)**
+
 ---
 
 ## 한 줄 정의
