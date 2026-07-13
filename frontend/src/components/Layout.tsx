@@ -1,6 +1,6 @@
 import { Outlet, Link, useNavigate, useLocation } from "react-router";
 import { useApp } from "../context/AppContext";
-import { Bell, User, Settings, LogOut, Menu, X, Home, Calendar, AlertCircle, MessageCircle, ChevronRight, Utensils, BookOpen } from "lucide-react";
+import { Bell, User, Settings, LogOut, Home, Eye, BarChart3, BookOpen } from "lucide-react";
 import { Capacitor } from "@capacitor/core";
 import { useCallback, useEffect, useRef, useState } from "react";
 import PushToast from "./PushToast";
@@ -11,12 +11,13 @@ import logoImage from "../asset/mamma_9.webp";
 
 const isApp = Capacitor.isNativePlatform();
 
+// 알레르기 안전 도구로 좁힌 IA(hybrid mock 기준). 일정/영양/레시피/커뮤니티는 detab —
+// 라우트는 유지되지만 탭에서 제거(삭제는 P5 데드코드 퍼지에서 결정).
 const navItems = [
-  { label: "이유식 일정", path: "/schedule", color: "#FFEFAB" },
-  { label: "영양 관리", path: "/nutrition", color: "#FFEFAB" },
-  { label: "레시피 관리", path: "/recipes", color: "#FFEFAB" },
+  { label: "식재료 도감", path: "/ingredients", color: "#FFEFAB" },
+  { label: "관찰", path: "/observe", color: "#FFEFAB" },
   { label: "알레르기 관리", path: "/allergy", color: "#FFEFAB" },
-  { label: "커뮤니티", path: "/community", color: "#FFEFAB" },
+  { label: "리포트", path: "/reports", color: "#FFEFAB" },
 ];
 
 const adminNavItems = [
@@ -28,22 +29,13 @@ const adminNavItems = [
   { label: "결제 관리", path: "/admin/payments", color: "#FFEFAB" },
 ];
 
+// hybrid mock의 5탭. 구 메뉴 오버레이는 탭과 함께 제거 — 설정은 헤더 아이콘으로 이동.
 const appTabItems = [
-  { label: "메뉴", path: null, icon: Menu },
-  { label: "일정", path: "/schedule", icon: Calendar },
   { label: "홈", path: "/", icon: Home },
-  { label: "알레르기", path: "/allergy", icon: AlertCircle },
-  { label: "커뮤니티", path: "/community", icon: MessageCircle },
-];
-
-const appMenuNavItems = [
-  { label: "홈", path: "/", icon: Home },
-  { label: "이유식 일정", path: "/schedule", icon: Calendar },
-  { label: "영양 관리", path: "/nutrition", icon: Utensils },
-  { label: "레시피 관리", path: "/recipes", icon: BookOpen },
-  { label: "알레르기 관리", path: "/allergy", icon: AlertCircle },
-  { label: "커뮤니티", path: "/community", icon: MessageCircle },
-  { label: "설정", path: "/settings", icon: Settings },
+  { label: "도감", path: "/ingredients", icon: BookOpen },
+  { label: "관찰", path: "/observe", icon: Eye },
+  { label: "리포트", path: "/reports", icon: BarChart3 },
+  { label: "프로필", path: "/profile", icon: User },
 ];
 
 const UNREAD_COUNT_CACHE_TTL_MS = 30 * 1000;
@@ -57,7 +49,6 @@ export default function Layout() {
   const { user, token, logout } = useApp();
   const navigate = useNavigate();
   const location = useLocation();
-  const [appMenuOpen, setAppMenuOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const navRef = useRef<HTMLElement>(null);
   const seenNotificationIdsRef = useRef<Set<string>>(new Set());
@@ -151,7 +142,6 @@ export default function Layout() {
   const handleLogout = () => {
     logout();
     navigate("/");
-    setAppMenuOpen(false);
   };
 
   // ── 앱 레이아웃 ───────────────────────────────────────────
@@ -161,17 +151,12 @@ export default function Layout() {
         {/* 상단 헤더 */}
         <header className="app-header w-full shrink-0 z-[9999] bg-card border-b border-border shadow-sm">
           <div className="px-4 h-[var(--app-header-content-height)] flex items-center justify-between">
-            <Link to="/" onClick={() => setAppMenuOpen(false)}>
+            <Link to="/">
               <img src={logoImage} alt="맘마케어 로고" className="h-5 w-auto object-contain" />
             </Link>
             {user ? (
               <div className="flex items-center gap-0">
-                <Link to="/profile" onClick={() => setAppMenuOpen(false)}>
-                  <button title="프로필" className="p-[11px] rounded-full hover:bg-[#F6E26B]/30 transition-colors text-foreground">
-                    <User className="w-5 h-5 sm:w-[22px] sm:h-[22px]" />
-                  </button>
-                </Link>
-                <Link to="/notifications" onClick={() => setAppMenuOpen(false)}>
+                <Link to="/notifications">
                   <button title="알림" className="p-[11px] rounded-full hover:bg-[#F6E26B]/30 transition-colors text-foreground relative">
                     <Bell className="w-5 h-5 sm:w-[22px] sm:h-[22px]" />
                     {unreadCount > 0 && (
@@ -179,6 +164,11 @@ export default function Layout() {
                         {unreadCount > 9 ? "9+" : unreadCount}
                       </span>
                     )}
+                  </button>
+                </Link>
+                <Link to="/settings">
+                  <button title="설정" className="p-[11px] rounded-full hover:bg-[#F6E26B]/30 transition-colors text-foreground">
+                    <Settings className="w-5 h-5 sm:w-[22px] sm:h-[22px]" />
                   </button>
                 </Link>
               </div>
@@ -193,34 +183,6 @@ export default function Layout() {
           </div>
         </header>
 
-        {/* 메뉴 오버레이 */}
-        {appMenuOpen && (
-          <div className="app-menu-overlay fixed inset-0 w-full z-[9998] bg-background flex flex-col">
-            {/* 메뉴 목록 */}
-            <nav className="flex-1 flex flex-col py-4 gap-1 overflow-y-auto">
-              {appMenuNavItems.map((item) => (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  onClick={() => setAppMenuOpen(false)}
-                  className={`w-full flex items-center justify-between px-4 py-4 rounded-2xl transition-colors ${
-                    location.pathname === item.path
-                      ? "bg-[#F6E26B]/40 text-foreground"
-                      : "text-foreground hover:bg-[#F6E26B]/20"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <item.icon size={22} className="text-muted-foreground" />
-                    <span className="text-lg font-medium">{item.label}</span>
-                  </div>
-                  <ChevronRight size={18} className="text-muted-foreground" />
-                </Link>
-              ))}
-            </nav>
-
-          </div>
-        )}
-
         {/* 메인 콘텐츠 — 독립 스크롤 영역 */}
         <main className="app-main flex-1 overflow-y-auto overflow-x-hidden">
           <Outlet />
@@ -229,24 +191,11 @@ export default function Layout() {
         {/* 하단 탭바 */}
         <nav className="app-bottom-nav fixed bottom-0 left-0 right-0 w-full z-[9999] bg-card border-t border-border grid grid-cols-5 h-20">
           {appTabItems.map((item) => {
-            const isMenu = item.path === null;
-            const isActive = isMenu ? appMenuOpen : (item.path === "/" ? location.pathname === "/" : location.pathname.startsWith(item.path!));
-            return isMenu ? (
-              <button
-                key="menu"
-                onClick={() => setAppMenuOpen(!appMenuOpen)}
-                className={`flex flex-col items-center justify-center gap-1 w-full h-full transition-colors ${
-                  isActive ? "text-foreground" : "text-muted-foreground"
-                }`}
-              >
-                {isActive ? <X size={24} /> : <Menu size={24} />}
-                <span className="text-xs font-medium">{item.label}</span>
-              </button>
-            ) : (
+            const isActive = item.path === "/" ? location.pathname === "/" : location.pathname.startsWith(item.path);
+            return (
               <Link
                 key={item.path}
-                to={item.path!}
-                onClick={() => setAppMenuOpen(false)}
+                to={item.path}
                 className={`flex flex-col items-center justify-center gap-1 w-full h-full transition-colors ${
                   isActive ? "text-foreground" : "text-muted-foreground"
                 }`}
