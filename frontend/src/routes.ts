@@ -10,6 +10,8 @@ import Recipes from "./pages/Recipes";
 import Allergy from "./pages/Allergy";
 import Ingredients from "./pages/Ingredients";
 import Observe from "./pages/Observe";
+import ObserveLanding from "./pages/Observe/Landing";
+import Reports from "./pages/Reports";
 import Community from "./pages/Community";
 import Profile from "./pages/Profile";
 import ProfileSelect from "./pages/ProfileSelect";
@@ -49,7 +51,9 @@ export const router = createRouter([
       { path: "recipes", Component: Recipes },
       { path: "allergy", Component: Allergy },
       { path: "ingredients", Component: Ingredients },
+      { path: "observe", Component: ObserveLanding },
       { path: "observe/:testingId", Component: Observe },
+      { path: "reports", Component: Reports },
       { path: "community", Component: Community },
       { path: "community/posts/:postId", Component: Community },
       { path: "profile", Component: Profile },
