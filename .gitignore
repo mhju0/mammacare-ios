@@ -144,4 +144,7 @@ GEMINI.md
 ROADMAP.md
 docs/mocks/
 
+# 로컬 엔지니어링 워크플로 설정 (공개 불필요)
+docs/agents/
+
 .tokensave/
