@@ -2,6 +2,7 @@ import { type HTMLAttributes } from "react";
 import { Check, Clock, AlertTriangle, AlertCircle, Circle, type LucideIcon } from "lucide-react";
 
 import type { TestStatus } from "../../api/allergy";
+import { isReactionOutcome } from "../../utils/allergyStatus";
 import { cn } from "./utils";
 
 export type ChipStatus = "safe" | "testing" | "reaction" | "caution" | "not-started";
@@ -14,13 +15,19 @@ const STATUS_CONFIG: Record<ChipStatus, { label: string; className: string; Icon
   "not-started": { label: "미시작", className: "bg-not-started-bg text-not-started-fg", Icon: Circle },
 };
 
+/** Canonical Korean label for a status — the single source non-chip consumers (stamps, modals) read. */
+export function statusLabel(status: ChipStatus): string {
+  return STATUS_CONFIG[status].label;
+}
+
 /**
  * Maps the API's `test_status` enum (and the `has_reaction` flag) onto a ChipStatus.
- * An in-progress test that already recorded a reaction is surfaced as "reaction".
+ * An in-progress test that already recorded a reaction is surfaced as "reaction"
+ * via the shared `isReactionOutcome` rule (single definition).
  */
 export function statusFromTestStatus(testStatus: TestStatus, hasReaction = false): ChipStatus {
   if (testStatus === "completed_safe") return "safe";
-  if (testStatus === "completed_reaction" || hasReaction) return "reaction";
+  if (isReactionOutcome({ test_status: testStatus, has_reaction: hasReaction })) return "reaction";
   return "testing";
 }
 

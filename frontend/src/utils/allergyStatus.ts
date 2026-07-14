@@ -10,15 +10,24 @@
 // status and the confirmed flag rather than collapsing into a single enum.
 // Consumers wrap these in useMemo; nothing here touches React state or lifecycle.
 //
-// The count/bucket selectors below intentionally give a reaction the priority
-// (`completed_reaction || has_reaction`) — this mirrors the two screens' existing
-// inline logic exactly.
+// The count/bucket selectors below give a reaction priority via `isReactionOutcome`
+// — the single definition of that rule, also read by the StatusChip classifier, so
+// a change to the reaction rule lands in exactly one frontend place.
 
 import type {
   IngredientTestingResponse,
   ConfirmedAllergyResponse,
   TestStatus,
 } from "../api/allergy";
+
+/**
+ * The canonical "this row counts as a reaction" rule: a completed reaction, or an
+ * in-progress test that already recorded one. Single definition — the presentation
+ * classifier (`statusFromTestStatus`) and every count/bucket selector read it.
+ */
+export function isReactionOutcome(t: { test_status: TestStatus | null; has_reaction: boolean }): boolean {
+  return t.test_status === "completed_reaction" || t.has_reaction;
+}
 
 export interface IngredientStatusRecord {
   /** The original testing row, retained losslessly for rendering. */
@@ -69,7 +78,7 @@ export function toDashboardCounts(records: IngredientStatusRecord[]): DashboardC
   let testing = 0;
   let reaction = 0;
   for (const t of rows) {
-    if (t.test_status === "completed_reaction" || t.has_reaction) reaction += 1;
+    if (isReactionOutcome(t)) reaction += 1;
     else if (t.test_status === "completed_safe") safe += 1;
     else testing += 1;
   }
@@ -115,7 +124,7 @@ export function toAllergyBuckets(
 
   const reactionIngredientIds = new Set(
     rows
-      .filter((t) => t.test_status === "completed_reaction" || t.has_reaction)
+      .filter(isReactionOutcome)
       .map((t) => t.ingredient_id),
   );
 
@@ -132,7 +141,7 @@ export function toAllergyBuckets(
   const reaction = dedupeByIngredientLatest(
     rows.filter(
       (t) =>
-        (t.test_status === "completed_reaction" || t.has_reaction) &&
+        isReactionOutcome(t) &&
         !confirmedIngredientIds.has(t.ingredient_id),
     ),
   ).sort((a, b) => a.ingredient_name.localeCompare(b.ingredient_name, "ko"));

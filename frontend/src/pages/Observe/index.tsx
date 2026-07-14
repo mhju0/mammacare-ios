@@ -33,6 +33,7 @@ import { DayStepper } from "../../components/ui/day-stepper";
 import { Card } from "../../components/ui/card";
 import { Skeleton } from "../../components/ui/skeleton";
 import { StatusChip, statusFromTestStatus } from "../../components/ui/status-chip";
+import { isReactionOutcome } from "../../utils/allergyStatus";
 import { IngredientIcon } from "../../components/IngredientIcon";
 import { AuthImage } from "../../components/AuthImage";
 
@@ -195,10 +196,9 @@ export default function Observe() {
   const isActivelyTesting = !!testing
     && (testing.test_status === null || testing.test_status === "testing")
     && !testing.has_reaction;
-  // 종료된 테스트를 반응/완료로 세분화. statusFromTestStatus의 반응 판정 조건과 동일하게 맞춰
-  // 배지(StatusChip)와 링/스테퍼가 서로 다른 상태를 보여주는 일이 없도록 한다.
-  const isReactionEnded = !isActivelyTesting
-    && (testing?.test_status === "completed_reaction" || !!testing?.has_reaction);
+  // 종료된 테스트를 반응/완료로 세분화. 반응 판정은 공용 isReactionOutcome 규칙 하나로
+  // 통일해 배지(StatusChip)와 링/스테퍼가 서로 다른 상태를 보여주는 일이 없도록 한다.
+  const isReactionEnded = !isActivelyTesting && !!testing && isReactionOutcome(testing);
   const headerTitle = isActivelyTesting
     ? "72시간 관찰 중"
     : isReactionEnded

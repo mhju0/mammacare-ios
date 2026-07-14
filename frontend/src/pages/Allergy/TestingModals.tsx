@@ -16,14 +16,18 @@ import {
 } from "../../api/allergy";
 import { listIngredients, type IngredientResponse } from "../../api/ingredients";
 import { IngredientIcon } from "../../components/IngredientIcon";
+import { statusLabel, type ChipStatus } from "../../components/ui/status-chip";
 import { SYMPTOM_PRESETS, SEVERITY_OPTIONS, parseCheckedAt } from "./types";
 
 // ── 상태 메타 ─────────────────────────────────────────────────────────────────
 
-export const STATUS_META: Record<TestStatus, { label: string; className: string }> = {
-  testing: { label: "테스트 중", className: "bg-white text-primary-foreground font-medium" },
-  completed_safe: { label: "안전 통과", className: "bg-white text-safe-fg font-medium" },
-  completed_reaction: { label: "반응 있음", className: "bg-white text-destructive font-medium" },
+// Modal pill styling per test status; the label is sourced from the canonical
+// statusLabel (single source) so it can't drift from the StatusChip vocabulary.
+// Keyed by test_status only (no has_reaction) — matches the history-list behavior.
+const STATUS_PILL: Record<TestStatus, { chip: ChipStatus; className: string }> = {
+  testing: { chip: "testing", className: "bg-white text-primary-foreground font-medium" },
+  completed_safe: { chip: "safe", className: "bg-white text-safe-fg font-medium" },
+  completed_reaction: { chip: "reaction", className: "bg-white text-destructive font-medium" },
 };
 
 // ── 단일 체크 기록 렌더링 ──────────────────────────────────────────────────────
@@ -287,8 +291,9 @@ export function IngredientHistoryPopup({
             <div className="text-center py-7 -mt-2 text-muted-foreground text-base">이력이 없습니다</div>
           ) : (
             relevant.map((t) => {
-              const meta = t.test_status
-                ? STATUS_META[t.test_status]
+              const pill = t.test_status ? STATUS_PILL[t.test_status] : null;
+              const meta = pill
+                ? { label: statusLabel(pill.chip), className: pill.className }
                 : { label: "예약", className: "bg-muted text-muted-foreground" };
               const isExpanded = expandedId === t.id;
               const isLoading = loadingId === t.id;
