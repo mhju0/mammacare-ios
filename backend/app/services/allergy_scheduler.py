@@ -28,28 +28,13 @@ from fastapi import HTTPException
 
 from app.db.session import AsyncSessionLocal
 from app.models.allergy.ingredient_testing import IngredientTesting
-from app.crud.allergy.ingredient_testing import _assert_no_active_overlap, _status_from_dates
-
-logger = logging.getLogger("mammacare.allergy_scheduler")
-# 구 부분 unique 인덱스(ux_…)와 신 EXCLUDE 제약(ex_…) 둘 다 인식 — 마이그레이션 전후 호환
-_ACTIVE_TESTING_CONSTRAINT_NAMES = (
-    "ex_ingredient_testing_no_overlap",
-    "ux_ingredient_testing_active",
+from app.crud.allergy.ingredient_testing import (
+    _assert_no_active_overlap,
+    _is_active_testing_unique_violation,
+    _status_from_dates,
 )
 
-
-def _is_active_testing_unique_violation(exc: IntegrityError) -> bool:
-    orig = getattr(exc, "orig", None)
-    cause = getattr(orig, "__cause__", None)
-    constraint_name = (
-        getattr(orig, "constraint_name", None)
-        or getattr(cause, "constraint_name", None)
-        or ""
-    )
-    if constraint_name in _ACTIVE_TESTING_CONSTRAINT_NAMES:
-        return True
-    exc_str = str(exc)
-    return any(name in exc_str for name in _ACTIVE_TESTING_CONSTRAINT_NAMES)
+logger = logging.getLogger("mammacare.allergy_scheduler")
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Job 1: recipe 연결 식단 기반 자동 테스트 등록 (fallback)

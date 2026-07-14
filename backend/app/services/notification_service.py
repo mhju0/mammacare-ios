@@ -9,6 +9,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud import crud_notification
+from app.db.constraints import is_constraint_violation
 from app.models.parent_user import ParentUser
 from app.services import fcm_service, notification_templates
 
@@ -24,16 +25,7 @@ def _get_dedup_key(data: dict[str, Any]) -> str | None:
 
 
 def _is_dedup_unique_violation(exc: IntegrityError) -> bool:
-    orig = getattr(exc, "orig", None)
-    cause = getattr(orig, "__cause__", None)
-    constraint_name = (
-        getattr(orig, "constraint_name", None)
-        or getattr(cause, "constraint_name", None)
-        or ""
-    )
-    if constraint_name == _DEDUP_INDEX_NAME:
-        return True
-    return _DEDUP_INDEX_NAME in str(exc)
+    return is_constraint_violation(exc, _DEDUP_INDEX_NAME)
 
 
 async def persist_and_push_notification(

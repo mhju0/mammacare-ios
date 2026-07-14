@@ -9,6 +9,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import selectinload
 
 from app.core.storage import delete_image_from_blob, is_blob_path
+from app.db.constraints import is_constraint_violation
 from app.crud.crud_notification import delete_notifications_for_ingredient_testing
 from app.models.allergy.confirmed_allergy import ConfirmedAllergy
 from app.models.allergy import IngredientTesting
@@ -29,17 +30,7 @@ _ACTIVE_TESTING_CONSTRAINT_NAMES = (
 
 
 def _is_active_testing_unique_violation(exc: IntegrityError) -> bool:
-    orig = getattr(exc, "orig", None)
-    cause = getattr(orig, "__cause__", None)
-    constraint_name = (
-        getattr(orig, "constraint_name", None)
-        or getattr(cause, "constraint_name", None)
-        or ""
-    )
-    if constraint_name in _ACTIVE_TESTING_CONSTRAINT_NAMES:
-        return True
-    exc_str = str(exc)
-    return any(name in exc_str for name in _ACTIVE_TESTING_CONSTRAINT_NAMES)
+    return is_constraint_violation(exc, _ACTIVE_TESTING_CONSTRAINT_NAMES)
 
 
 def _test_end_date(test_start_date: datetime) -> datetime:
