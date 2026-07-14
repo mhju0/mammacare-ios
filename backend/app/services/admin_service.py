@@ -29,17 +29,12 @@ from app.schemas.admin import (
     AdminIngredientDataListOut,
     AdminIngredientDataOut,
     AdminIngredientDeleteIn,
-    AdminLoginLogOut,
-    AdminLoginLogsOut,
     AdminLoginSessionOut,
     AdminRecipeCreate,
     AdminRecipeDataListOut,
     AdminRecipeDataOut,
     AdminRecipeDeleteIn,
-    AdminRevokeTokensOut,
     AdminStatsOut,
-    AdminSuspiciousListOut,
-    AdminSuspiciousSessionOut,
     AdminToggleAdminOut,
     AdminUserActivityOut,
     AdminUserDetailOut,
@@ -663,30 +658,6 @@ async def get_dashboard(
 
 
 # ── 보안 & 권한 서비스 ────────────────────────────────────────
-
-
-async def get_admin_login_logs(
-    db: AsyncSession,
-    skip: int = 0,
-    limit: int = 50,
-) -> AdminLoginLogsOut:
-    return AdminLoginLogsOut(logs=[], total=0)
-
-
-async def get_suspicious_sessions(db: AsyncSession) -> AdminSuspiciousListOut:
-    return AdminSuspiciousListOut(sessions=[], total=0)
-
-
-async def revoke_user_tokens(
-    db: AsyncSession,
-    parent_id: uuid.UUID,
-    current_admin_id: uuid.UUID,
-) -> AdminRevokeTokensOut:
-    result = await db.execute(select(ParentUser).where(ParentUser.id == parent_id))
-    user = result.scalar_one_or_none()
-    if user is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "사용자를 찾을 수 없습니다.")
-    return AdminRevokeTokensOut(revoked_count=0)
 
 
 async def grant_admin(

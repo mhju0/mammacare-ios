@@ -235,43 +235,6 @@ class AdminDashboardOut(BaseModel):
 
 # ── 보안 & 권한 스키마 ──
 
-class AdminLoginLogOut(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    token_id: uuid.UUID
-    parent_id: uuid.UUID
-    name: str
-    email: str
-    created_at: datetime
-    ip_address: str | None
-    user_agent: str | None
-    is_revoked: bool
-
-
-class AdminLoginLogsOut(BaseModel):
-    logs: list[AdminLoginLogOut]
-    total: int
-
-
-class AdminSuspiciousSessionOut(BaseModel):
-    parent_id: uuid.UUID
-    name: str
-    email: str
-    reason: str
-    created_at: datetime
-    ip_address: str | None
-    user_agent: str | None
-
-
-class AdminSuspiciousListOut(BaseModel):
-    sessions: list[AdminSuspiciousSessionOut]
-    total: int
-
-
-class AdminRevokeTokensOut(BaseModel):
-    revoked_count: int
-
-
 class AdminToggleAdminOut(BaseModel):
     parent_id: uuid.UUID
     is_admin: bool

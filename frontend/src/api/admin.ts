@@ -384,84 +384,10 @@ export async function getAdminDashboard(
 
 // ── 보안 & 권한 ──
 
-export interface AdminLoginLogOut {
-  token_id: string;
-  parent_id: string;
-  name: string;
-  email: string;
-  created_at: string;
-  ip_address: string | null;
-  user_agent: string | null;
-  is_revoked: boolean;
-}
-
-export interface AdminLoginLogsOut {
-  logs: AdminLoginLogOut[];
-  total: number;
-}
-
-export interface AdminSuspiciousSessionOut {
-  parent_id: string;
-  name: string;
-  email: string;
-  reason: string;
-  created_at: string;
-  ip_address: string | null;
-  user_agent: string | null;
-}
-
-export interface AdminSuspiciousListOut {
-  sessions: AdminSuspiciousSessionOut[];
-  total: number;
-}
-
-export interface AdminRevokeTokensOut {
-  revoked_count: number;
-}
-
 export interface AdminToggleAdminOut {
   parent_id: string;
   is_admin: boolean;
   message: string;
-}
-
-export async function getAdminLoginLogs(
-  token: string,
-  params?: { skip?: number; limit?: number },
-): Promise<AdminLoginLogsOut> {
-  const query = new URLSearchParams();
-  if (params?.skip != null) query.set("skip", String(params.skip));
-  if (params?.limit != null) query.set("limit", String(params.limit));
-  const qs = query.toString();
-  const res = await apiFetch<ApiResponse<AdminLoginLogsOut>>(
-    `/admin/security/login-logs${qs ? `?${qs}` : ""}`,
-    {},
-    token,
-  );
-  return res.data;
-}
-
-export async function getAdminSuspiciousSessions(
-  token: string,
-): Promise<AdminSuspiciousListOut> {
-  const res = await apiFetch<ApiResponse<AdminSuspiciousListOut>>(
-    "/admin/security/suspicious",
-    {},
-    token,
-  );
-  return res.data;
-}
-
-export async function revokeUserTokens(
-  token: string,
-  parentId: string,
-): Promise<AdminRevokeTokensOut> {
-  const res = await apiFetch<ApiResponse<AdminRevokeTokensOut>>(
-    `/admin/security/revoke-tokens/${parentId}`,
-    { method: "POST" },
-    token,
-  );
-  return res.data;
 }
 
 export async function grantAdmin(
