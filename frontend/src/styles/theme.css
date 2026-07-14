@@ -2,90 +2,90 @@
 
 :root {
   --font-size: clamp(11px, 1.25vw, 18px);
-  --background: #FFFDF7;
-  --foreground: #3D3C38;
-  --card: #FFFAF0;
-  --card-foreground: #3D3C38;
-  --popover: #FFFAF0;
-  --popover-foreground: #3D3C38;
-  --primary: #FFE78A;
-  --primary-foreground: #3D3C38;
-  --secondary: #93C7EC;
-  --secondary-foreground: #3D3C38;
-  --tertiary: #FEF5CC;
-  --tertiary-foreground: #3D3C38;
-  --muted: #FEF5CC;
-  --muted-foreground: #7A7A7A;
-  --accent: #F8AC95;
+  --background: #F7F2E8;
+  --foreground: #2B3A31;
+  --card: #FDFBF5;
+  --card-foreground: #2B3A31;
+  --popover: #FDFBF5;
+  --popover-foreground: #2B3A31;
+  --primary: #6FA07A;
+  --primary-foreground: #FFFFFF;
+  --secondary: #A9C6B0;
+  --secondary-foreground: #2B3A31;
+  --tertiary: #EFE9DA;
+  --tertiary-foreground: #2B3A31;
+  --muted: #EFE9DA;
+  --muted-foreground: #8C8778;
+  --accent: #EFE9DA;
   --accent-foreground: ;
-  --destructive: var(--reaction-fg); /* unified: single source of truth = --reaction-fg (#C0392B) */
+  --destructive: var(--reaction-fg); /* unified: single source of truth = --reaction-fg */
   --destructive-foreground: #fafafa;
-  --border: #FEF5CC;
-  --input: #FFFAF0;
-  --input-background: #fafafa;
-  --switch-background: #FDD1BA;
+  --border: #ECE5D5;
+  --input: #FDFBF5;
+  --input-background: #FBF8F2;
+  --switch-background: #DCD3BE;
   --font-weight-medium: 600;
   --font-weight-normal: 400;
-  --ring: #FFE493;
-  --chart-1: #F8AC95;
-  --chart-2: #9AC6AF;
-  --chart-3: #FFE78A;
-  --chart-4: #93C7EC;
-  --chart-5: #FEF5CC;
+  --ring: #6FA07A;
+  --chart-1: #CF7B5E;
+  --chart-2: #6FA07A;
+  --chart-3: #E3A24C;
+  --chart-4: #A9C6B0;
+  --chart-5: #EFE9DA;
   --radius: 1rem;
-  --sidebar: #FFFAF0;
-  --sidebar-foreground: #3D3C38;
-  --sidebar-primary: #FFE78A;
-  --sidebar-primary-foreground: #3D3C38;
-  --sidebar-accent: #93C7EC;
-  --sidebar-accent-foreground: #3D3C38;
-  --sidebar-border: #FEF5CC;
-  --sidebar-ring: #FEF5CC;
+  --sidebar: #FDFBF5;
+  --sidebar-foreground: #2B3A31;
+  --sidebar-primary: #6FA07A;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #A9C6B0;
+  --sidebar-accent-foreground: #2B3A31;
+  --sidebar-border: #ECE5D5;
+  --sidebar-ring: #ECE5D5;
 
-  /* ── Design System (clinical) — ADDITIVE. Do not reuse the legacy tokens above. ── */
-  --bg: #F5F8F6;
-  --surface: #FFFFFF;
-  /* DESIGN_SYSTEM names this '--border'; renamed to avoid clobbering the legacy --border (#FEF5CC) */
-  --surface-border: #E2E9E5;
-  --text: #1F2A30;
-  --text-muted: #6B7B85;
+  /* ── Design System (clinical) — LEGACY. Superseded by the cream/sage tokens below; retuned to match. ── */
+  --bg: #F7F2E8;
+  --surface: #FDFBF5;
+  /* DESIGN_SYSTEM names this '--border'; renamed to avoid clobbering the legacy --border */
+  --surface-border: #ECE5D5;
+  --text: #2B3A31;
+  --text-muted: #8C8778;
   --clinic-blue: #2D7FF9;
-  --sage: #7A9B76;
-  --safe-bg: #E6F4EA;
-  --safe-fg: #2E7D4F;
-  --testing-bg: #FBEFD6;
-  --testing-fg: #B26A00;
-  --reaction-bg: #FBE6E5;
-  --reaction-fg: #C0392B;
-  --action-soft-bg: radial-gradient(ellipse at center, #EBF7FF 0%, #DBF2FF 50%, #D1EDFF 100%);
-  --action-soft-bg-hover: radial-gradient(ellipse at center, #D4EEFF 0%, #DBF2FF 100%);
-  --card-wash-bg: radial-gradient(ellipse at center, #FFFAF0 0%, #FFFBE8 100%);
-  --card-wash-yellow-bg: radial-gradient(ellipse at center, #FFFAF0 0%, #FFF5D4 100%);
-  --testing-track-bg: #FEF5CC;
-  --card-wash-green-bg: radial-gradient(ellipse at center, #FFFAF0 0%, #E3FFF1 100%);
-  --card-wash-red-bg: radial-gradient(ellipse at center, #FFFAF0 0%, #FFEEE8 100%);
+  --sage: #6FA07A;
+  --safe-bg: #E7F0E4;
+  --safe-fg: #4E7C5B;
+  --testing-bg: #FBF0D9;
+  --testing-fg: #B0761F;
+  --reaction-bg: #F6E6DF;
+  --reaction-fg: #B0512F;
+  --action-soft-bg: radial-gradient(ellipse at center, #EAF1EA 0%, #E3EEE4 50%, #DCEADE 100%);
+  --action-soft-bg-hover: radial-gradient(ellipse at center, #E3EEE4 0%, #DCEADE 100%);
+  --card-wash-bg: radial-gradient(ellipse at center, #FDFBF5 0%, #F7F2E8 100%);
+  --card-wash-yellow-bg: radial-gradient(ellipse at center, #FDFBF5 0%, #FBF0D9 100%);
+  --testing-track-bg: #EFE7D2;
+  --card-wash-green-bg: radial-gradient(ellipse at center, #FDFBF5 0%, #E7F0E4 100%);
+  --card-wash-red-bg: radial-gradient(ellipse at center, #FDFBF5 0%, #F6E6DF 100%);
 
-  /* ── warm-kr theme (rose/coral UI overhaul) — ADDITIVE, S0 foundation. ──
-     Exact hex sampled from docs/mocks/warm-kr/*.png. Separate namespace from the
-     legacy + clinical tokens above; no .dark overrides (project precedent: wash tokens). */
-  --warm-bg: #FFF8F7;            /* page background — pale warm rose (home.png bg) */
-  --warm-surface: #FFFFFF;       /* white cards on rose bg */
-  --warm-surface-soft: #FFF0EE;  /* soft-rose tint — status pill / "진행 중인 테스트" & "TESTING NOW" badge bg */
-  --warm-border: #F3E1DD;        /* hairline border for cards/inputs on rose bg (cards are near-borderless + soft shadow) */
-  --warm-brand: #9E4037;         /* deep terracotta — brand text, FAB, solid "시작하기" button, progress ring (FAB/시작하기 sampled) */
+  /* ── cream/sage theme (concept overhaul, 2026-07-14) — retuned in place from warm-kr. ──
+     Owner-confirmed pivot from rose/terracotta to cream + sage-green. Light-only (no .dark).
+     Brand (deep sage) vs CTA (sage) role separation preserved. */
+  --warm-bg: #F7F2E8;            /* page background — warm oat cream */
+  --warm-surface: #FDFBF5;       /* ivory cards on cream bg */
+  --warm-surface-soft: #EFE9DA;  /* soft oat tint — status pill / "진행 중인 테스트" badge bg */
+  --warm-border: #ECE5D5;        /* cream hairline border for cards/inputs (cards lean on soft shadow) */
+  --warm-brand: #4E7C5B;         /* deep sage — brand text, FAB, solid button, progress ring */
   --warm-brand-fg: #FFFFFF;      /* text/icon on --warm-brand */
-  --warm-brand-hover: #8A382F;   /* darker terracotta — hover/active on brand-solid */
-  --warm-cta: #FF8B7D;           /* coral — CTA ONLY (primary record buttons); sampled from home/observe CTA pill */
-  --warm-cta-hover: #F5735A;     /* deeper coral — hover/active on CTA */
-  --warm-cta-fg: #FFFFFF;        /* text/icon on coral CTA */
-  --warm-fg: #3D3C38;            /* primary text on warm surfaces — fixed (warm system is light-only, no .dark) */
-  --warm-fg-muted: #8A7F7B;      /* muted secondary text on warm surfaces (e.g. "초기 (4m+)") */
+  --warm-brand-hover: #3F6A4C;   /* darker sage — hover/active on brand-solid */
+  --warm-cta: #6FA07A;           /* sage — CTA ONLY (primary record buttons) */
+  --warm-cta-hover: #5E8A66;     /* deeper sage — hover/active on CTA */
+  --warm-cta-fg: #FFFFFF;        /* text/icon on sage CTA */
+  --warm-fg: #2B3A31;            /* charcoal-green ink on warm surfaces (light-only, no .dark) */
+  --warm-fg-muted: #8C8778;      /* muted secondary text on warm surfaces */
 
   /* StatusChip 5-variant expansion — additive status tokens (family: safe/testing/reaction above) */
-  --caution-bg: #FCEBDD;         /* peach — chosen between testing(#FBEFD6) and reaction(#FBE6E5) bg */
-  --caution-fg: #C2410C;         /* burnt orange — chosen hue between amber testing(#B26A00) and red reaction(#C0392B) */
-  --not-started-bg: #EEF1F4;     /* neutral slate-100 — deliberately off the traffic-light scale */
-  --not-started-fg: #64748B;     /* neutral slate-500 */
+  --caution-bg: #F6E7D2;         /* warm peach — between testing and reaction */
+  --caution-fg: #B4652A;         /* burnt amber — hue between testing and reaction */
+  --not-started-bg: #EDE8DB;     /* warm neutral — deliberately off the traffic-light scale */
+  --not-started-fg: #857F70;     /* warm slate */
 }
 
 .dark {
