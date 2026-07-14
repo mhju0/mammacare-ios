@@ -38,6 +38,7 @@ import {
 import { SYMPTOM_PRESETS, SEVERITY_OPTIONS } from "./types";
 import {
   getSuspectedIngredientsPrioritized,
+  groupSuspectedByName,
   STANDARD_KOREAN_ALLERGENS,
 } from "../../data/crossReactivity";
 import { listIngredients, type IngredientResponse } from "../../api/ingredients";
@@ -1222,34 +1223,11 @@ function AllergyInner() {
                 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-warm-border [&::-webkit-scrollbar-thumb]:rounded-full">
                 <div className="grid grid-flow-col grid-rows-2 gap-3 px-5 w-max">
                   {(() => {
-                    // suspectedName 기준으로 그룹화 — 확정·반응 출처를 각각 수집
-                    const groupMap = new Map<string, { confirmed: string[]; reaction: string[]; severity: string }>();
-                    for (const item of suspectedIngredients) {
-                      if (!groupMap.has(item.suspectedName)) {
-                        groupMap.set(item.suspectedName, { confirmed: [], reaction: [], severity: item.severity });
-                      }
-                      const group = groupMap.get(item.suspectedName)!;
-                      const isConfirmedBased = confirmedAllergenNames.includes(item.sourceAllergen);
-                      const isReactionBased = reactionIngredientNames.includes(item.sourceAllergen);
-                      if (isConfirmedBased && !group.confirmed.includes(item.sourceAllergen)) group.confirmed.push(item.sourceAllergen);
-                      if (isReactionBased && !group.reaction.includes(item.sourceAllergen)) group.reaction.push(item.sourceAllergen);
-                      if (!isConfirmedBased && !isReactionBased && !group.reaction.includes(item.sourceAllergen)) group.reaction.push(item.sourceAllergen);
-                      // 더 높은 severity로 업데이트
-                      const sOrd: Record<string, number> = { high: 0, medium: 1, low: 2 };
-                      if ((sOrd[item.severity] ?? 2) < (sOrd[group.severity] ?? 2)) group.severity = item.severity;
-                    }
-
-                    const severityOrder: Record<string, number> = { high: 0, medium: 1, low: 2 };
-                    const sorted = Array.from(groupMap.entries()).sort(([, a], [, b]) => {
-                      // 확정 알레르기 기반 재료 우선
-                      const aConfirmed = a.confirmed.length > 0 ? 0 : 1;
-                      const bConfirmed = b.confirmed.length > 0 ? 0 : 1;
-                      if (aConfirmed !== bConfirmed) return aConfirmed - bConfirmed;
-                      // 같은 확정 여부면 severity 높은 순
-                      const aOrder = severityOrder[a.severity] ?? 2;
-                      const bOrder = severityOrder[b.severity] ?? 2;
-                      return aOrder - bOrder;
-                    });
+                    const sorted = groupSuspectedByName(
+                      suspectedIngredients,
+                      confirmedAllergenNames,
+                      reactionIngredientNames,
+                    );
 
                     return sorted.map(([suspectedName, group]) => {
                       const isConfirmedBased = group.confirmed.length > 0;

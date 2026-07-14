@@ -523,6 +523,47 @@ export function getSuspectedIngredientsPrioritized(
   return [...fromConfirmed, ...fromReaction];
 }
 
+export interface SuspectGroup {
+  /** 이 의심 재료를 지목한 확정-알레르기 출처 이름들. */
+  confirmed: string[];
+  /** 이 의심 재료를 지목한 반응/기타 출처 이름들. */
+  reaction: string[];
+  /** 출처들 중 가장 높은(심각한) severity. */
+  severity: string;
+}
+
+// suspectedName 기준으로 그룹화: 확정·반응 출처를 각각 모으고 최고 severity를 취한 뒤,
+// 확정 기반 우선 → severity 높은 순으로 정렬한 [이름, 그룹] 엔트리 배열을 반환한다.
+// (Allergy 화면의 JSX 안에 있던 그룹화 로직을 순수 함수로 분리 — 테스트 가능.)
+export function groupSuspectedByName(
+  suspected: SuspectedIngredient[],
+  confirmedAllergenNames: string[],
+  reactionIngredientNames: string[],
+): [string, SuspectGroup][] {
+  const order: Record<string, number> = { high: 0, medium: 1, low: 2 };
+  const groupMap = new Map<string, SuspectGroup>();
+  for (const item of suspected) {
+    if (!groupMap.has(item.suspectedName)) {
+      groupMap.set(item.suspectedName, { confirmed: [], reaction: [], severity: item.severity });
+    }
+    const group = groupMap.get(item.suspectedName)!;
+    const isConfirmedBased = confirmedAllergenNames.includes(item.sourceAllergen);
+    const isReactionBased = reactionIngredientNames.includes(item.sourceAllergen);
+    if (isConfirmedBased && !group.confirmed.includes(item.sourceAllergen)) group.confirmed.push(item.sourceAllergen);
+    if (isReactionBased && !group.reaction.includes(item.sourceAllergen)) group.reaction.push(item.sourceAllergen);
+    if (!isConfirmedBased && !isReactionBased && !group.reaction.includes(item.sourceAllergen)) group.reaction.push(item.sourceAllergen);
+    if ((order[item.severity] ?? 2) < (order[group.severity] ?? 2)) group.severity = item.severity;
+  }
+
+  return Array.from(groupMap.entries()).sort(([, a], [, b]) => {
+    // 확정 알레르기 기반 재료 우선, 같은 확정 여부면 severity 높은 순
+    const aConfirmed = a.confirmed.length > 0 ? 0 : 1;
+    const bConfirmed = b.confirmed.length > 0 ? 0 : 1;
+    if (aConfirmed !== bConfirmed) return aConfirmed - bConfirmed;
+    return (order[a.severity] ?? 2) - (order[b.severity] ?? 2);
+  });
+}
+
 // 단일 재료명이 반응 재료와 교차반응 관계인지 확인
 export function isCrossReactiveSuspect(
   ingredientName: string,
