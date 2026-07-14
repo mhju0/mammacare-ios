@@ -36,6 +36,13 @@ class ReportReactedItem(BaseModel):
     memo: Optional[str] = None
     symptoms: list[ReportSymptomDetail]
 
+class ReportSuspectedItem(BaseModel):
+    """교차반응 의심 재료 — 확진·반응 재료로부터 이름 기반 추정(참고용)."""
+    suspected_name: str
+    source_allergen: str
+    reason: str
+    severity: str
+
 class BabyAllergyReport(BaseModel):
     baby_name: str
     baby_birth_date: date
@@ -44,3 +51,4 @@ class BabyAllergyReport(BaseModel):
     testings: list[ReportTestingItem]
     reacted_ingredients: list[ReportReactedItem]
     confirmed_allergies: list[ReportAllergyItem]
+    suspected_cross_reactive: list[ReportSuspectedItem] = []

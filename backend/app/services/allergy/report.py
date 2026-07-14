@@ -20,7 +20,9 @@ from app.schemas.allergy.report import (
     ReportPhotoItem,
     ReportReactedItem,
     ReportAllergyItem,
+    ReportSuspectedItem,
 )
+from app.services.allergy.cross_reactivity import get_suspected_ingredients_prioritized
 
 logger = logging.getLogger("mammacare")
 
@@ -127,6 +129,20 @@ def build_report(
         for allergy in confirmed_allergies
     ]
 
+    # 교차반응 의심 재료 — 확진·반응 재료로부터 서버 단일 소스로 추정(이름 기반 참고).
+    suspected_items = [
+        ReportSuspectedItem(
+            suspected_name=s["suspectedName"],
+            source_allergen=s["sourceAllergen"],
+            reason=s["reason"],
+            severity=s["severity"],
+        )
+        for s in get_suspected_ingredients_prioritized(
+            [item.ingredient_name for item in confirmed_items],
+            [item.ingredient_name for item in reacted_items],
+        )
+    ]
+
     return BabyAllergyReport(
         baby_name=baby.name,
         baby_birth_date=baby.birth_date,
@@ -135,6 +151,7 @@ def build_report(
         testings=testing_items,
         reacted_ingredients=reacted_items,
         confirmed_allergies=confirmed_items,
+        suspected_cross_reactive=suspected_items,
     )
 
 

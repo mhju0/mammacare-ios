@@ -121,6 +121,32 @@
     {% endif %}
   </div>
 
+  <!-- 2.5 교차반응 의심 재료 (이름 기반 참고 정보) -->
+  {% if report.suspected_cross_reactive %}
+  {% set severity_label = {'high': '높음', 'medium': '중간', 'low': '낮음'} %}
+  <div class="section">
+    <h2>교차반응 의심 재료 (참고)</h2>
+    <p class="no-data">확진·반응 재료와 이름 기반으로 교차반응 가능성이 알려진 재료입니다.
+      진단이 아닌 참고용이며, 새 재료 도입 시 주의 깊게 관찰하세요.</p>
+    <table>
+      <tr>
+        <th style="width: 22%;">의심 재료</th>
+        <th style="width: 18%;">근거 재료</th>
+        <th style="width: 12%;">위험도</th>
+        <th>사유</th>
+      </tr>
+      {% for item in report.suspected_cross_reactive %}
+      <tr>
+        <td>{{ item.suspected_name }}</td>
+        <td>{{ item.source_allergen }}</td>
+        <td>{{ severity_label.get(item.severity, item.severity) }}</td>
+        <td>{{ item.reason }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+  {% endif %}
+
   <!-- 3. 일주일 테스트 기록 -->
   <div class="section">
     <h2>알레르기 테스트 기록 (최근 7일)</h2>
