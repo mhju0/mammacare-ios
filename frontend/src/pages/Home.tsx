@@ -1,47 +1,15 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { Baby, ChevronDown, Milestone } from "lucide-react";
 import { useNavigate, useLocation } from "react-router";
 import { Capacitor } from "@capacitor/core";
 import TutorialModal from "../components/TutorialModal";
 import { tutorialSlides } from "../components/tutorialSlides";
-import homeImage1 from "../asset/home_image_1.webp";
-import homeImage2 from "../asset/home_image_2.webp";
-import homeImage3 from "../asset/home_image_3.webp";
-import homeImage4 from "../asset/home_image_7.webp";
 import About from "./About";
 
 // Layout.tsx와 동일하게 모듈 레벨에서 판별
 const isApp = Capacitor.isNativePlatform();
 
-const slides = [
-  {
-    src: homeImage3,
-    alt: "맘마케어 슬라이드 꾸밈 1",
-    style: { objectPosition: "50% 50%", transform: "translateX(0%)" },
-  },
-  {
-    src: homeImage2,
-    alt: "맘마케어 슬라이드 꾸밈 2",
-    style: { objectPosition: "50% 50%", transform: "translateX(0%)" },
-  },
-  {
-    src: homeImage4,
-    alt: "맘마케어 슬라이드 꾸밈 3",
-    style: { objectPosition: "50% 50%", transform: "translateX(0%)" },
-  },
-  {
-    src: homeImage1,
-    alt: "맘마케어 슬라이드 꾸밈 4",
-    style: { objectPosition: "50% 50%", transform: "translateX(0%)" },
-  },
-];
-
-// 끝에 첫 슬라이드 복사본 추가 → 4→1 전환 시 우측에서 자연스럽게 넘어오게
-const extendedSlides = [...slides, slides[0]];
-
 export default function Home() {
-  const [current, setCurrent] = useState(0);
-  const [animated, setAnimated] = useState(true);
   const [tutorialOpen, setTutorialOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -54,37 +22,6 @@ export default function Home() {
     }
   }, [location.search, navigate]);
 
-  const next = useCallback(() => {
-    setAnimated(true);
-    setCurrent((c) => c + 1);
-  }, []);
-
-  // 클론(인덱스 4) 도착 후 애니메이션 없이 진짜 인덱스 0으로 순간이동
-  useEffect(() => {
-    if (current === slides.length) {
-      const t = setTimeout(() => {
-        setAnimated(false);
-        setCurrent(0);
-      }, 500);
-      return () => clearTimeout(t);
-    }
-  }, [current]);
-
-  // 순간이동 직후 다시 애니메이션 활성화
-  useEffect(() => {
-    if (!animated) {
-      const t = setTimeout(() => setAnimated(true), 20);
-      return () => clearTimeout(t);
-    }
-  }, [animated]);
-
-  useEffect(() => {
-    const timer = setInterval(next, 4000);
-    return () => clearInterval(timer);
-  }, [next]);
-
-  const dotIndex = current % slides.length;
-
   return (
     <>
       {/* 앱: 헤더(48px) + 탭바(80px) = 128px 제외한 높이로 화면을 정확히 채움 */}
@@ -92,31 +29,7 @@ export default function Home() {
         className="hero"
         style={{ height: isApp ? "calc(100vh - 128px)" : "calc(100vh - 100px)" }}
       >
-        {/* Sliding images */}
-        <div
-          className="flex h-full"
-          style={{
-            transform: `translateX(-${current * 100}%)`,
-            transition: animated ? "transform 500ms ease-in-out" : "none",
-          }}
-        >
-          {extendedSlides.map((slide, i) => (
-            <img
-              key={i}
-              src={slide.src}
-              alt={slide.alt}
-              className="hero-img"
-              style={slide.style}
-              loading={i === 0 ? "eager" : "lazy"}
-              decoding="async"
-            />
-          ))}
-        </div>
-
-        {/* 그라데이션 오버레이 */}
-        <div className="hero-overlay" />
-
-        {/* 소개 텍스트 */}
+        {/* 소개 텍스트 (사진 없는 크림 히어로) */}
         <div className="hero-content">
           {/* 웹 text-5xl → 앱 text-3xl */}
           <h1
@@ -182,27 +95,10 @@ export default function Home() {
           mutedSubCaption
         />
 
-        {/* Dots - 웹에서만 표시 */}
-        {!isApp && (
-          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2 z-20">
-            {slides.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => {
-                  setAnimated(true);
-                  setCurrent(i);
-                }}
-                className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
-                  i === dotIndex ? "bg-white scale-125" : "bg-white/50"
-                }`}
-              />
-            ))}
-          </div>
-        )}
-        {/* 앱에서만: 아래로 스크롤하면 About 콘텐츠가 있음을 알리는 반투명 화살표 */}
+        {/* 앱에서만: 아래로 스크롤하면 About 콘텐츠가 있음을 알리는 화살표 */}
         {isApp && (
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 animate-bounce">
-            <ChevronDown className="w-6 h-6 sm:w-8 sm:h-8 text-white/60" />
+            <ChevronDown className="w-6 h-6 sm:w-8 sm:h-8 text-warm-fg/40" />
           </div>
         )}
       </div>

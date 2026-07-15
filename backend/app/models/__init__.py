@@ -1,7 +1,6 @@
 from app.models.parent_user import ParentUser
 from app.models.baby_user import BabyUser
 from app.models.baby_growth import BabyGrowth
-from app.models.oauth_account import OAuthAccount
 from app.models.parent_login_device import ParentLoginDevice
 from app.models.ingredient import Ingredient
 from app.models.recipe import Recipe
@@ -30,7 +29,6 @@ __all__ = [
     "ParentUser",
     "BabyUser",
     "BabyGrowth",
-    "OAuthAccount",
     "ParentLoginDevice",
     "Ingredient",
     "Recipe",

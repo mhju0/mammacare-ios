@@ -9,7 +9,6 @@ export interface AdminUserOut {
   email: string;
   name: string;
   nickname: string;
-  auth_provider: string;
   is_admin: boolean;
   is_active: boolean;
   created_at: string;
@@ -339,7 +338,6 @@ export async function deleteAdminIngredients(
 // ── 대시보드 ──
 
 export interface TrendItem { period_label: string; count: number; }
-export interface ProviderItem { provider: string; count: number; percentage: number; }
 export interface TestingTrendItem { period_label: string; created: number; completed: number; }
 export interface TopAllergyItem { name: string; count: number; }
 export interface SeverityItem { severity: string; count: number; }
@@ -349,7 +347,6 @@ export interface GrowthItem { age_group: string; avg_weight: number | null; avg_
 
 export interface AdminDashboardOut {
   new_users_trend: TrendItem[];
-  provider_distribution: ProviderItem[];
   dau: number;
   mau: number;
   total_users: number;
@@ -367,11 +364,10 @@ export interface AdminDashboardOut {
 
 export async function getAdminDashboard(
   token: string,
-  params?: { period?: string; provider?: string; age_group?: string },
+  params?: { period?: string; age_group?: string },
 ): Promise<AdminDashboardOut> {
   const query = new URLSearchParams();
   if (params?.period) query.set("period", params.period);
-  if (params?.provider) query.set("provider", params.provider);
   if (params?.age_group) query.set("age_group", params.age_group);
   const qs = query.toString();
   const res = await apiFetch<ApiResponse<AdminDashboardOut>>(

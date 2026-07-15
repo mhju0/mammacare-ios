@@ -114,7 +114,6 @@ interface AppContextType {
     password: string,
     keep: boolean,
   ) => Promise<{ success: boolean; babyCount: number; isAdmin: boolean }>;
-  loginWithToken: (token: string) => Promise<{ success: boolean; babyCount: number }>;
   registerAndLogin: (payload: {
     username: string;
     password: string;
@@ -123,7 +122,6 @@ interface AppContextType {
     email: string;
     phone?: string;
     address?: string;
-    oauth_signup_token?: string;
     baby_profile?: Omit<BabyProfile, "id">;
   }, babyFile?: File | null) => Promise<{ success: boolean; babyCount: number; error?: string; errorCode?: string }>;
   logout: () => void;
@@ -285,7 +283,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
           username: me.username,
           phone: me.phone,
           address: me.address,
-          auth_provider: me.auth_provider,
           isAdmin: me.is_admin ?? false,
           notify_meal_time: me.notify_meal_time,
           notify_allergy_check: me.notify_allergy_check,
@@ -323,55 +320,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
       .catch(() => {});
   }, []);
 
-  const loginWithToken = useCallback(async (newToken: string) => {
-    try {
-      storeToken(newToken, true);
-      set_token(newToken);
-      const [userData, list] = await Promise.all([
-        apiFetch<{
-          id: string; username: string; email: string; name: string;
-          nickname: string; phone: string | null; address: string | null;
-          auth_provider: string; is_admin: boolean;
-          notify_meal_time?: boolean; notify_allergy_check?: boolean; notify_community?: boolean;
-        }>("/users/me", {}, newToken),
-        listBabiesApi(newToken),
-      ]);
-      const nextUser = {
-        id: userData.id,
-        name: userData.name,
-        nickname: userData.nickname,
-        email: userData.email,
-        username: userData.username,
-        phone: userData.phone,
-        address: userData.address,
-        auth_provider: userData.auth_provider,
-        isAdmin: userData.is_admin ?? false,
-        notify_meal_time: userData.notify_meal_time,
-        notify_allergy_check: userData.notify_allergy_check,
-        notify_community: userData.notify_community,
-      };
-      set_user(nextUser);
-      localStorage.setItem(CACHED_USER_KEY, JSON.stringify(nextUser));
-      set_babies(list);
-      localStorage.setItem(CACHED_BABIES_KEY, JSON.stringify(list));
-      if (list.length > 0) {
-        set_active_baby_id(list[0].id);
-        localStorage.setItem(ACTIVE_BABY_ID_KEY, list[0].id);
-      }
-      return { success: true, babyCount: list.length };
-    } catch (error) {
-      if (isAuthFailure(error)) {
-        clearStoredToken();
-        clearCachedAuthState();
-        set_token(null);
-        set_user(null);
-        set_babies([]);
-        set_active_baby_id(null);
-      }
-      return { success: false, babyCount: 0 };
-    }
-  }, []);
-
   const login = useCallback(
     async (username: string, password: string, keep: boolean) => {
       try {
@@ -389,7 +337,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
           username: data.user.username,
           phone: data.user.phone,
           address: data.user.address,
-          auth_provider: data.user.auth_provider,
           isAdmin: data.user.is_admin ?? false,
           notify_meal_time: data.user.notify_meal_time,
           notify_allergy_check: data.user.notify_allergy_check,
@@ -426,7 +373,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
       email: string;
       phone?: string;
       address?: string;
-      oauth_signup_token?: string;
       baby_profile?: Omit<BabyProfile, "id">;
     }, babyFile?: File | null) => {
       try {
@@ -445,7 +391,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
           username: data.user.username,
           phone: data.user.phone,
           address: data.user.address,
-          auth_provider: data.user.auth_provider,
           isAdmin: data.user.is_admin ?? false,
         };
         set_user(nextUser);
@@ -640,7 +585,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
         parentInfo,
         saveParentInfo,
         login,
-        loginWithToken,
         registerAndLogin,
         logout,
         addBaby,

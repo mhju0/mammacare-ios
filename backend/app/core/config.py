@@ -32,7 +32,6 @@ class Settings(BaseSettings):
     ALLOWED_ORIGINS: str = ""
 
     FRONTEND_URL: str = "http://localhost:5173"
-    FRONTEND_OAUTH_CALLBACK_PATH: str = "/auth/callback"
 
     # 로컬 파일 저장 (구 Azure Blob 대체)
     # UPLOAD_DIR: 업로드 이미지를 저장할 디렉토리. 미설정 시 backend/uploads.
@@ -40,18 +39,7 @@ class Settings(BaseSettings):
     UPLOAD_DIR: str = str(_BACKEND_ROOT / "uploads")
     MEDIA_BASE_URL: str = "/api/media"
 
-    GOOGLE_CLIENT_ID: str = ""
-    GOOGLE_CLIENT_SECRET: str = ""
-    GOOGLE_REDIRECT_URI: str = ""
-
-    KAKAO_CLIENT_ID: str = ""
-    KAKAO_CLIENT_SECRET: str = ""
-    KAKAO_REDIRECT_URI: str = ""
     KAKAO_MAP_REST_API_KEY: str = ""
-
-    NAVER_CLIENT_ID: str = ""
-    NAVER_CLIENT_SECRET: str = ""
-    NAVER_REDIRECT_URI: str = ""
 
     FIREBASE_CREDENTIALS_PATH: str = ""
 

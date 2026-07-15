@@ -16,7 +16,6 @@ import ProfileEdit from "./pages/ProfileEdit";
 import Notifications from "./pages/Notifications";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
-import AuthCallback from "./pages/AuthCallback";
 import AdminHome from "./pages/admin/AdminHome";
 import AdminDashboard from "./pages/admin/AdminData";
 import AdminUsers from "./pages/admin/AdminUsers";
@@ -51,7 +50,6 @@ export const router = createRouter([
       { path: "profile/add", Component: ProfileAdd },
       { path: "profile/edit", Component: ProfileEdit },
       { path: "profile-select", Component: ProfileSelect },
-      { path: "auth/callback", Component: AuthCallback },
       { path: "notifications", Component: Notifications },
       { path: "settings", Component: Settings },
       { path: "about", Component: About },

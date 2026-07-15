@@ -43,7 +43,6 @@ from app.schemas.admin import (
     AdminUserUpdate,
     BabyAgeItem,
     GrowthItem,
-    ProviderItem,
     ScheduleStatusItem,
     SeverityItem,
     TestingTrendItem,
@@ -75,7 +74,6 @@ async def list_users(
     search: str | None,
     skip: int,
     limit: int,
-    provider: str | None = None,
     date_from: str | None = None,
     date_to: str | None = None,
 ) -> AdminUserListOut:
@@ -88,8 +86,6 @@ async def list_users(
                 ParentUser.email.ilike(f"%{search}%"),
             )
         )
-    if provider and provider != "all":
-        base_query = base_query.where(ParentUser.auth_provider == provider)
     if date_from:
         base_query = base_query.where(ParentUser.created_at >= datetime.fromisoformat(date_from))
     if date_to:
@@ -444,7 +440,6 @@ async def delete_ingredients(db: AsyncSession, body: AdminIngredientDeleteIn) ->
 async def get_dashboard(
     db: AsyncSession,
     period: str = "month",
-    provider: str = "all",
     age_group: str = "all",
 ) -> AdminDashboardOut:
     today = date_type.today()
@@ -490,19 +485,8 @@ async def get_dashboard(
     trend_q = select(trunc_expr.label("period"), func.count().label("count")).group_by(trunc_expr).order_by(trunc_expr)
     if start_dt is not None:
         trend_q = trend_q.where(ParentUser.created_at >= start_dt)
-    if provider != "all":
-        trend_q = trend_q.where(ParentUser.auth_provider == provider)
     trend_rows = (await db.execute(trend_q)).all()
     new_users_trend = [TrendItem(period_label=fmt_dt(r.period), count=r.count) for r in trend_rows]
-
-    # OAuth 제공자별 비율
-    prov_q = select(ParentUser.auth_provider.label("provider"), func.count().label("count")).group_by(ParentUser.auth_provider)
-    prov_rows = (await db.execute(prov_q)).all()
-    total_prov = sum(r.count for r in prov_rows) or 1
-    provider_distribution = [
-        ProviderItem(provider=r.provider, count=r.count, percentage=round(r.count / total_prov * 100, 1))
-        for r in prov_rows
-    ]
 
     dau = 0
     mau = 0
@@ -640,7 +624,6 @@ async def get_dashboard(
 
     return AdminDashboardOut(
         new_users_trend=new_users_trend,
-        provider_distribution=provider_distribution,
         dau=dau,
         mau=mau,
         total_users=total_users,

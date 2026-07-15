@@ -21,10 +21,8 @@ class ParentUser(Base):
     username: Mapped[str] = mapped_column(String(32), unique=True, index=True, nullable=False)
     # 이메일 — 비밀번호 찾기 및 소셜 계정 매핑(같은 이메일이면 연동)에 사용
     email: Mapped[str] = mapped_column(String(255), unique=True, index=True, nullable=False)
-    # 비밀번호 해시 — 소셜 전용 사용자는 NULL (로컬 로그인 불가)
+    # 비밀번호 해시 — 로컬 로그인용
     password_hash: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    # 인증 방식 — 'local' / 'google' / 'kakao' / 'naver' 중 하나
-    auth_provider: Mapped[str] = mapped_column(String(16), nullable=False, default="local")
 
     name: Mapped[str] = mapped_column(String(64), nullable=False)        # 실명
     # 닉네임 — 화면 표시용. unique 제약으로 중복 닉네임 방지
@@ -48,10 +46,6 @@ class ParentUser(Base):
 
     # ── 관계(Relationship) — 부모 삭제 시 자녀/연동계정/리프레시토큰 모두 같이 삭제 ──
     babies: Mapped[list["BabyUser"]] = relationship(  # noqa: F821
-        back_populates="parent", cascade="all, delete-orphan"
-    )
-    # 한 부모가 여러 소셜 계정 연동 가능(예: Google + Kakao 둘 다)
-    oauth_accounts: Mapped[list["OAuthAccount"]] = relationship(  # noqa: F821
         back_populates="parent", cascade="all, delete-orphan"
     )
     # 알림 — 부모 삭제 시 같이 삭제

@@ -1,14 +1,11 @@
 import { useState, useEffect } from "react";
 import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
-import { useNavigate, useSearchParams } from "react-router";
+import { useNavigate } from "react-router";
 import { useApp } from "../context/AppContext";
 import { findUsernameApi, resetPasswordApi } from "../api/auth";
-import { getApiBase } from "../api/base";
 import { Eye, EyeOff, X } from "lucide-react";
 import { motion } from "framer-motion";
-import kakaoLoginIcon from "../asset/kakao_login_circle.webp";
 import Logo from "../components/Logo";
-import naverLoginIcon from "../asset/NAVER_login_Light_KR_green_icon_H56.webp";
 
 type RecoveryMode = "username" | "password";
 
@@ -19,17 +16,11 @@ function isPasswordValid(password: string) {
 export default function Login() {
   const { login, user } = useApp();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const [id, setId] = useState("");
   const [pw, setPw] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [keep, setKeep] = useState(true);
-  const [error, setError] = useState(() => {
-    const socialError = searchParams.get("social_error");
-    if (socialError === "not_connected") return "소셜 계정이 연결되어 있지 않습니다. 일반 로그인 후 설정에서 연결해주세요.";
-    if (socialError === "account_suspended") return "계정이 정지되었습니다. 관리자에게 문의하세요.";
-    return "";
-  });
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [recoveryMode, setRecoveryMode] = useState<RecoveryMode | null>(null);
   useBodyScrollLock(!!recoveryMode);
@@ -64,17 +55,6 @@ export default function Login() {
   useEffect(() => {
     if (user) {
       navigate("/profile", { replace: true });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // social_error 쿼리파라미터를 URL에서 제거 (뒤로가기 시 에러 반복 표시 방지)
-  useEffect(() => {
-    if (searchParams.get("social_error")) {
-      const next = new URLSearchParams(searchParams);
-      next.delete("social_error");
-      next.delete("reason");
-      navigate({ search: next.toString() }, { replace: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -147,17 +127,6 @@ export default function Login() {
       setRecoveryLoading(false);
     }
   };
-
-const handleSocial = (provider: "카카오" | "네이버" | "구글") => {
-  const providerMap: Record<"카카오" | "네이버" | "구글", string> = {
-    "카카오": "kakao",
-    "네이버": "naver",
-    "구글": "google",
-  };
-
-  const apiBase = getApiBase();
-  window.location.href = `${apiBase}/api/auth/${providerMap[provider]}/login`;
-};
 
   return (
     <div className="min-h-[calc(100vh-8rem)] flex items-center justify-center px-4 py-10">
@@ -281,44 +250,8 @@ const handleSocial = (provider: "카카오" | "네이버" | "구글") => {
                   비밀번호 찾기
                 </button>
               </div>
-
-              {/* 소셜 로그인 */}
-              <div className="flex items-center justify-center gap-3 pt-5 pb-2">
-                <button type="button" onClick={() => handleSocial("카카오")} className="group rounded-full relative overflow-hidden transition-shadow hover:shadow-[0_1px_2px_0_rgba(60,64,67,.30),0_1px_3px_1px_rgba(60,64,67,.15)]">
-                  <img src={kakaoLoginIcon} alt="카카오 로그인" className="w-[40px] h-[40px] object-contain" />
-                  <span className="absolute inset-0 rounded-full bg-transparent group-hover:bg-[rgba(0,29,53,0.08)] transition-colors pointer-events-none" />
-                </button>
-                <button type="button" onClick={() => handleSocial("네이버")} className="group rounded-full relative overflow-hidden transition-shadow hover:shadow-[0_1px_2px_0_rgba(60,64,67,.30),0_1px_3px_1px_rgba(60,64,67,.15)]">
-                  <img src={naverLoginIcon} alt="네이버 로그인" className="w-[40px] h-[40px] object-contain" />
-                  <span className="absolute inset-0 rounded-full bg-transparent group-hover:bg-[rgba(0,29,53,0.08)] transition-colors pointer-events-none" />
-                </button>
-                <button type="button" onClick={() => handleSocial("구글")} className="gsi-material-button">
-                  <div className="gsi-material-button-state"></div>
-                  <div className="gsi-material-button-content-wrapper">
-                    <div className="gsi-material-button-icon">
-                      <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" style={{ display: "block" }}>
-                        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path>
-                        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path>
-                        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path>
-                        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path>
-                        <path fill="none" d="M0 0h48v48H0z"></path>
-                      </svg>
-                    </div>
-                    <span style={{ display: "none" }}>Sign in with Google</span>
-                  </div>
-                </button>
-              </div>
             </form>
           </div>
-        </div>
-
-        {/* 하단 안내 */}
-        <div className="border-t border-border px-8 py-4 bg-muted/30">
-          <p className="text-xs text-muted-foreground leading-relaxed max-w-base text-center">
-            <strong>간편 로그인 안내: </strong>
-            소셜 로그인 시 해당 서비스의 이용약관 및 개인정보 처리방침이 적용되며,
-            <br />맘마케어의 서비스 이용을 위해 일부 정보(이름, 이메일)가 활용될 수 있습니다.
-          </p>
         </div>
       </div>
       {recoveryMode && (

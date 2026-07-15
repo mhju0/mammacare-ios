@@ -21,10 +21,9 @@ async def get_dashboard(
     _: CurrentAdmin,
     db: DB,
     period: str = Query(default="month", pattern="^(all|day|week|month|quarter)$"),
-    provider: str = Query(default="all"),
     age_group: str = Query(default="all"),
 ):
-    data = await admin_service.get_dashboard(db, period=period, provider=provider, age_group=age_group)
+    data = await admin_service.get_dashboard(db, period=period, age_group=age_group)
     return ApiResponse(success=True, message="대시보드 조회 성공", data=data.model_dump())
 
 

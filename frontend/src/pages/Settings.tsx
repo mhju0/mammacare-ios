@@ -1,13 +1,11 @@
-import { useCallback, useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 import { Capacitor } from "@capacitor/core";
 import { useApp } from "../context/AppContext";
-import kakaoLoginIcon from "../asset/kakao_login_circle.webp";
-import naverLoginIcon from "../asset/NAVER_login_Light_KR_green_icon_H56.webp";
 import {
   Bell, Shield, Trash2, ChevronRight,
   Lock, User, FileText, Baby, AlertTriangle, Edit3, Check, X,
-  Smartphone, HelpCircle, Link2, Monitor, Tablet, Settings as SettingsIcon,
+  Smartphone, HelpCircle, Monitor, Tablet, Settings as SettingsIcon,
   Eye, EyeOff, LogOut
 } from "lucide-react";
 import { apiFetch } from "../api/client";
@@ -18,44 +16,9 @@ import {
   updateMeApi,
   type LoginDevice,
 } from "../api/auth";
-import {
-  disconnectSocialAccount,
-  listSocialAccounts,
-  startSocialConnect,
-  type SocialAccount,
-  type SocialProvider,
-} from "../api/socialAccounts";
-import { dedupeRequest, readSessionCache, writeSessionCache } from "../utils/sessionCache";
 import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
 
-// ─── Constants ────────────────────────────────────────────────────────────────
-
-const SOCIAL_PROVIDERS: SocialProvider[] = ["google", "naver", "kakao"];
-const PROVIDER_LABELS: Record<SocialProvider, string> = {
-  google: "Google",
-  naver: "Naver",
-  kakao: "Kakao",
-};
-const PROVIDER_ACTIVE_STYLES: Record<SocialProvider, string> = {
-  google: "border-blue-500/30 bg-blue-500/10",
-  naver: "border-green-500/30 bg-green-500/10",
-  kakao: "border-yellow-400/40 bg-yellow-400/10",
-};
-const SOCIAL_ERROR_MESSAGES: Record<string, string> = {
-  invalid_state: "소셜 연결 요청이 만료되었습니다. 다시 시도해 주세요.",
-  invalid_user: "연결할 계정을 찾을 수 없습니다. 다시 로그인해주세요.",
-  inactive_user: "정지된 계정에는 소셜 계정을 연결할 수 없습니다.",
-  already_linked: "이미 다른 맘마케어 계정에 연결된 소셜 계정입니다.",
-  provider_already_connected: "이미 연결된 소셜 서비스입니다.",
-  connect_failed: "소셜 계정 연결에 실패했습니다. 다시 시도해 주세요.",
-};
-const SOCIAL_ACCOUNTS_CACHE_TTL_MS = 5 * 60 * 1000;
-
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function socialAccountsCacheKey(userId: string): string {
-  return `mammacare:settings:social-accounts:${userId}`;
-}
 
 function sanitizeAddress(address: string | null | undefined): string {
   return (address ?? "").replace(/^\s*(?:[\(\[]?\d{5}[\)\]]?)\s+/, "").trim();
@@ -80,45 +43,6 @@ function DeviceIcon({ type }: { type: LoginDevice["device_type"] }) {
   if (type === "phone") return <Smartphone size={22} className={className} />;
   if (type === "tablet") return <Tablet size={22} className={className} />;
   return <Monitor size={22} className={className} />;
-}
-
-// ─── Provider Icon ────────────────────────────────────────────────────────────
-
-function ProviderIcon({ provider, size = 36 }: { provider: SocialProvider; size?: number }) {
-  if (provider === "kakao") {
-    return (
-      <img
-        src={kakaoLoginIcon}
-        alt="카카오"
-        style={{ width: size, height: size }}
-        className="object-contain rounded-full shrink-0"
-      />
-    );
-  }
-  if (provider === "naver") {
-    return (
-      <img
-        src={naverLoginIcon}
-        alt="네이버"
-        style={{ width: size, height: size }}
-        className="object-contain rounded-full shrink-0"
-      />
-    );
-  }
-  return (
-    <div
-      style={{ width: size, height: size }}
-      className="flex items-center justify-center rounded-full border border-gray-200 bg-white shrink-0"
-    >
-      <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" style={{ width: size * 0.58, height: size * 0.58, display: "block" }}>
-        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
-        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
-        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
-        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
-        <path fill="none" d="M0 0h48v48H0z" />
-      </svg>
-    </div>
-  );
 }
 
 // ─── Account Info Modal ───────────────────────────────────────────────────────
@@ -215,7 +139,6 @@ function AccountInfoModal({ onClose }: { onClose: () => void }) {
         username: updated.username,
         phone: updated.phone,
         address: updated.address,
-        auth_provider: updated.auth_provider,
         isAdmin: updated.is_admin ?? false,
       };
       set_user(nextUser);
@@ -325,110 +248,6 @@ function AccountInfoModal({ onClose }: { onClose: () => void }) {
             닫기
           </button>
         </div>
-      </div>
-    </div>
-  );
-}
-
-// ─── Social Connect Modal ─────────────────────────────────────────────────────
-
-function SocialConnectModal({
-  accounts,
-  actionProvider,
-  socialLoading,
-  onClose,
-  onConnect,
-  onDisconnect,
-}: {
-  accounts: SocialAccount[];
-  actionProvider: SocialProvider | null;
-  socialLoading: boolean;
-  onClose: () => void;
-  onConnect: (provider: SocialProvider) => void;
-  onDisconnect: (provider: SocialProvider) => void;
-}) {
-  useBodyScrollLock();
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
-
-  return (
-    <div
-      className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center pt-16 px-4"
-      onClick={onClose}
-    >
-      <div
-        className="bg-card rounded-3xl w-full max-w-lg shadow-2xl border border-border overflow-hidden"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-start justify-between gap-4 px-6 py-5">
-          <div>
-            <h2 className="font-bold text-lg text-foreground">
-              소셜 계정 연동하기
-            </h2>
-            <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
-              연결한 소셜 계정으로도 로그인할 수 있어요.
-            </p>
-          </div>
-          <button onClick={onClose} className="p-1.5 rounded-full hover:bg-muted shrink-0">
-            <X className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-muted-foreground" />
-          </button>
-        </div>
-
-        <div className="px-5 pb-4 space-y-3">
-          {SOCIAL_PROVIDERS.map((provider) => {
-            const account = accounts.find((item) => item.provider === provider);
-            const isConnected = Boolean(account);
-            const isBusy = actionProvider === provider;
-            return (
-              <div
-                key={provider}
-                className={`rounded-full px-4 py-4 transition-all ${
-                  isConnected
-                    ? "border-border bg-muted/40 opacity-80"
-                    : PROVIDER_ACTIVE_STYLES[provider]
-                }`}
-              >
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <ProviderIcon provider={provider} size={38} />
-                    <p className="text-sm text-foreground font-medium">
-                      {isConnected
-                        ? `현재 ${PROVIDER_LABELS[provider]} 계정이 연결되어 있어요.`
-                        : `${PROVIDER_LABELS[provider]} 계정으로 간편하게 로그인할 수 있어요.`}
-                    </p>
-                  </div>
-                  {isConnected ? (
-                    <button
-                      type="button"
-                      onClick={() => onDisconnect(provider)}
-                      disabled={isBusy}
-                      className="shrink-0 px-4 py-2.5 rounded-3xl text-sm font-semibold transition-opacity bg-card 
-                      text-primary-foreground hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed"
-                    >
-                      {isBusy ? "해제 중" : "해제하기"}
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => onConnect(provider)}
-                      disabled={isBusy || socialLoading}
-                      className="shrink-0 px-4 py-2.5 rounded-3xl text-sm font-semibold transition-opacity bg-card 
-                      text-primary-foreground hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed"
-                    >
-                      {isBusy ? "연결 중" : "연결하기"}
-                    </button>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
       </div>
     </div>
   );
@@ -683,7 +502,6 @@ export default function Settings() {
   const isApp = Capacitor.isNativePlatform();
   const { user, activeBaby, babies, deleteBaby, token, set_user, logout } = useApp();
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
   const [notifyAllergyCheck, setNotifyAllergyCheck] = useState(user?.notify_allergy_check ?? true);
 
   const toggleNotification = async (
@@ -704,7 +522,6 @@ export default function Settings() {
         username: updated.username,
         phone: updated.phone,
         address: updated.address,
-        auth_provider: updated.auth_provider,
         isAdmin: updated.is_admin ?? false,
         notify_meal_time: updated.notify_meal_time,
         notify_allergy_check: updated.notify_allergy_check,
@@ -714,9 +531,6 @@ export default function Settings() {
       setter(current);
     }
   };
-  const cachedSocialAccounts = user
-    ? readSessionCache<SocialAccount[]>(socialAccountsCacheKey(user.id))
-    : null;
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showWithdrawConfirm, setShowWithdrawConfirm] = useState(false);
@@ -724,122 +538,10 @@ export default function Settings() {
   const [showAccountInfo, setShowAccountInfo] = useState(false);
   const [showPasswordChange, setShowPasswordChange] = useState(false);
   const [showDeviceManagement, setShowDeviceManagement] = useState(false);
-  const [showSocialConnect, setShowSocialConnect] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
   const [contactForm, setContactForm] = useState({ email: "", subject: "", content: "" });
   const [contactSubmitting, setContactSubmitting] = useState(false);
   const [contactError, setContactError] = useState<string | null>(null);
-  const [socialAccounts, setSocialAccounts] = useState<SocialAccount[]>(cachedSocialAccounts ?? []);
-  const [socialLoading, setSocialLoading] = useState(false);
-  const [socialActionProvider, setSocialActionProvider] = useState<SocialProvider | null>(null);
-  const [socialMessage, setSocialMessage] = useState<{
-    type: "success" | "error";
-    text: string;
-  } | null>(null);
-
-  const loadSocialAccounts = useCallback(async () => {
-    if (!token || !user) return;
-    const cacheKey = socialAccountsCacheKey(user.id);
-    const cached = readSessionCache<SocialAccount[]>(cacheKey);
-    if (cached) setSocialAccounts(cached);
-    setSocialLoading(!cached);
-    try {
-      const data = await dedupeRequest(cacheKey, () => listSocialAccounts(token));
-      setSocialAccounts(data.connected);
-      writeSessionCache(cacheKey, data.connected, SOCIAL_ACCOUNTS_CACHE_TTL_MS);
-    } catch (e: unknown) {
-      setSocialMessage({
-        type: "error",
-        text: e instanceof Error ? e.message : "연결된 소셜 계정을 불러오지 못했습니다.",
-      });
-    } finally {
-      setSocialLoading(false);
-    }
-  }, [token, user]);
-
-  useEffect(() => {
-    loadSocialAccounts();
-  }, [loadSocialAccounts]);
-
-  useEffect(() => {
-    const connected = searchParams.get("social_connected") as SocialProvider | null;
-    const error = searchParams.get("social_error");
-    if (connected && SOCIAL_PROVIDERS.includes(connected)) {
-      setSocialMessage({
-        type: "success",
-        text: `${PROVIDER_LABELS[connected]} 계정이 연결되었습니다.`,
-      });
-      loadSocialAccounts();
-    } else if (error) {
-      setSocialMessage({
-        type: "error",
-        text: SOCIAL_ERROR_MESSAGES[error] ?? SOCIAL_ERROR_MESSAGES.connect_failed,
-      });
-    }
-    if (connected || error) {
-      const next = new URLSearchParams(searchParams);
-      next.delete("social_connected");
-      next.delete("social_error");
-      setSearchParams(next, { replace: true });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const handleSocialConnect = async (provider: SocialProvider) => {
-    if (!token) {
-      setSocialMessage({ type: "error", text: "로그인이 필요합니다." });
-      return;
-    }
-    setSocialActionProvider(provider);
-    setSocialMessage(null);
-    try {
-      const authorizeUrl = await startSocialConnect(token, provider);
-      window.location.href = authorizeUrl;
-    } catch (e: unknown) {
-      setSocialMessage({
-        type: "error",
-        text: e instanceof Error ? e.message : "소셜 연결을 시작하지 못했습니다.",
-      });
-      setSocialActionProvider(null);
-    }
-  };
-
-  const handleSocialDisconnect = async (provider: SocialProvider) => {
-    if (!token) {
-      setSocialMessage({ type: "error", text: "로그인이 필요합니다." });
-      return;
-    }
-    const label = PROVIDER_LABELS[provider];
-    const confirmed = window.confirm(
-      `${label} 연결을 해제할까요?\n해제하면 ${label}로는 로그인할 수 없어요.`,
-    );
-    if (!confirmed) return;
-
-    setSocialActionProvider(provider);
-    setSocialMessage(null);
-    try {
-      await disconnectSocialAccount(token, provider);
-      await loadSocialAccounts();
-      setSocialMessage({
-        type: "success",
-        text: `${label} 연결이 해제되었습니다.`,
-      });
-    } catch (e: unknown) {
-      const code = e instanceof Error && "code" in e
-        ? (e as { code?: string }).code
-        : undefined;
-      setSocialMessage({
-        type: "error",
-        text: code === "LAST_LOGIN_METHOD"
-          ? "마지막 로그인 수단은 해제할 수 없습니다. 다른 소셜 계정을 먼저 연결해 주세요."
-          : e instanceof Error
-            ? e.message
-            : "연결 해제에 실패했습니다. 다시 시도해 주세요.",
-      });
-    } finally {
-      setSocialActionProvider(null);
-    }
-  };
 
   const handleDeleteProfile = () => {
     if (!activeBaby) return;
@@ -900,14 +602,6 @@ export default function Settings() {
       title: "개인정보 및 보안",
       items: [
         { icon: User, label: "계정 정보", sub: "", type: "nav", action: () => setShowAccountInfo(true) },
-        {
-          icon: Link2,
-          label: "소셜 계정 연동하기",
-          sub: "",
-          type: "nav",
-          action: () => setShowSocialConnect(true),
-          meta: `${socialAccounts.length}개 연결됨`,
-        },
         { icon: Lock, label: "비밀번호 변경", sub: "", type: "nav", action: () => setShowPasswordChange(true) },
         { icon: Smartphone, label: "연결된 기기 관리", sub: "", type: "nav", action: () => setShowDeviceManagement(true) },
       ],
@@ -959,17 +653,6 @@ export default function Settings() {
         <SettingsIcon className="w-5 h-5 sm:w-6 sm:h-6" /> 설정
       </h1>
 
-
-      {socialMessage && (
-        <div className={`mb-4 rounded-3xl px-5 py-3 text-sm border ${
-          socialMessage.type === "success"
-            ? "text-green-700 bg-green-500/10 border-green-500/20"
-            : "text-destructive bg-destructive/10 border-destructive/20"
-        }`}>
-          {socialMessage.text}
-        </div>
-      )}
-
       {/* Settings Groups */}
       <div className="space-y-4">
         {settingGroups.map((group) => (
@@ -1004,11 +687,6 @@ export default function Settings() {
                     </button>
                   ) : (
                     <div className="flex items-center gap-2 shrink-0">
-                      {"meta" in item && item.meta && (
-                        <span className="text-sm font-medium text-muted-foreground">
-                          {item.meta}
-                        </span>
-                      )}
                       <ChevronRight size={18} className="text-muted-foreground" />
                     </div>
                   )}
@@ -1021,18 +699,6 @@ export default function Settings() {
 
       {/* Account Info Modal */}
       {showAccountInfo && <AccountInfoModal onClose={() => setShowAccountInfo(false)} />}
-
-      {/* Social Connect Modal */}
-      {showSocialConnect && (
-        <SocialConnectModal
-          accounts={socialAccounts}
-          actionProvider={socialActionProvider}
-          socialLoading={socialLoading}
-          onClose={() => setShowSocialConnect(false)}
-          onConnect={handleSocialConnect}
-          onDisconnect={handleSocialDisconnect}
-        />
-      )}
 
       {/* Password Change Modal */}
       {showPasswordChange && (

@@ -1,119 +1,15 @@
-.gsi-material-button {
-  -moz-user-select: none;
-  -webkit-user-select: none;
-  -ms-user-select: none;
-  user-select: none;       
-  -webkit-appearance: none;
-  appearance: none;
-  background-color: #f2f2f2;
-  background-image: none;
-  border: none;
-  -webkit-border-radius: 50%;
-  border-radius: 50%;
-  -webkit-box-sizing: border-box;
-  box-sizing: border-box;
-  color: #1f1f1f;
-  cursor: pointer;
-  font-family: 'Roboto', arial, sans-serif;
-  font-size: 14px;
-  width: 40px;
-  height: 40px;
-  min-width: 40px;
-  max-width: 40px;
-  padding: 0;
-  outline: none;
-  overflow: hidden;
-  position: relative;
-  -webkit-transition: background-color .218s, box-shadow .218s;
-  transition: background-color .218s, box-shadow .218s;
-  vertical-align: middle;
-}
-
-.gsi-material-button .gsi-material-button-icon {
-  height: 20px;
-  width: 20px;
-  min-width: 20px;
-  margin: 0;
-}
-
-.gsi-material-button .gsi-material-button-content-wrapper {
-  -webkit-align-items: center;
-  align-items: center;
-  display: flex;
-  -webkit-flex-direction: row;
-  flex-direction: row;
-  height: 100%;
-  justify-content: center;
-  position: relative;
-  width: 100%;
-}
-
-.gsi-material-button .gsi-material-button-state {
-  -webkit-transition: opacity .218s;
-  transition: opacity .218s;
-  bottom: 0;
-  left: 0;
-  opacity: 0;
-  position: absolute;
-  right: 0;
-  top: 0;
-}
-
-.gsi-material-button:disabled {
-  cursor: default;
-  background-color: #ffffff61;
-}
-
-.gsi-material-button:disabled .gsi-material-button-icon {
-  opacity: 38%;
-}
-
-.gsi-material-button:not(:disabled):active .gsi-material-button-state,
-.gsi-material-button:not(:disabled):focus .gsi-material-button-state {
-  background-color: #001d35;
-  opacity: 12%;
-}
-
-.gsi-material-button:not(:disabled):hover {
-  -webkit-box-shadow: 0 1px 2px 0 rgba(60, 64, 67, .30), 0 1px 3px 1px rgba(60, 64, 67, .15);
-  box-shadow: 0 1px 2px 0 rgba(60, 64, 67, .30), 0 1px 3px 1px rgba(60, 64, 67, .15);
-}
-
-.gsi-material-button:not(:disabled):hover .gsi-material-button-state {
-  background-color: #001d35;
-  opacity: 8%;
-}
-
 /* Dock Nav Animation */
 nav > * {
   transition: scale 0.15s ease;
   will-change: scale;
 }
 
-/* Hero Slider */
+/* Hero (photo-free cream) */
 .hero {
   position: relative;
   width: 100%;
   overflow: hidden;
-}
-
-.hero-img {
-  width: 100%;
-  height: 100%;
-  flex-shrink: 0;
-  object-fit: cover;
-}
-
-.hero-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to right,
-    rgba(247, 242, 232, 0.98) 10%,
-    rgba(247, 242, 232, 0.5) 40%,
-    rgba(247, 242, 232, 0.0) 70%
-  );
-  z-index: 10;
+  background: var(--warm-bg);
 }
 
 .hero-content {
@@ -228,33 +124,6 @@ button {
 
 .btn-tertiary:hover {
   opacity: 0.85;
-}
-
-.social-icon-btn {
-  position: relative;
-  overflow: hidden;
-  -webkit-transition: box-shadow .218s;
-  transition: box-shadow .218s;
-}
-
-.social-icon-btn::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-color: #001d35;
-  border-radius: inherit;
-  opacity: 0;
-  -webkit-transition: opacity .218s;
-  transition: opacity .218s;
-}
-
-.social-icon-btn:hover::after {
-  opacity: 0.08;
-}
-
-.social-icon-btn:hover {
-  -webkit-box-shadow: 0 1px 2px 0 rgba(60, 64, 67, .30), 0 1px 3px 1px rgba(60, 64, 67, .15);
-  box-shadow: 0 1px 2px 0 rgba(60, 64, 67, .30), 0 1px 3px 1px rgba(60, 64, 67, .15);
 }
 
 .scrollbar-hide {

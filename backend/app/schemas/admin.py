@@ -16,7 +16,6 @@ class AdminUserOut(BaseModel):
     email: str
     name: str
     nickname: str
-    auth_provider: str
     is_admin: bool
     is_active: bool
     created_at: datetime
@@ -174,12 +173,6 @@ class TrendItem(BaseModel):
     count: int
 
 
-class ProviderItem(BaseModel):
-    provider: str
-    count: int
-    percentage: float
-
-
 class TestingTrendItem(BaseModel):
     period_label: str
     created: int
@@ -215,7 +208,6 @@ class GrowthItem(BaseModel):
 class AdminDashboardOut(BaseModel):
     # 사용자 지표
     new_users_trend: list[TrendItem]
-    provider_distribution: list[ProviderItem]
     dau: int
     mau: int
     total_users: int

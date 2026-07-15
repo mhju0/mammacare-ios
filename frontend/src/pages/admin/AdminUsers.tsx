@@ -1,5 +1,4 @@
-import { useState, useEffect, useCallback, useRef, useLayoutEffect } from "react";
-import { createPortal } from "react-dom";
+import { useState, useEffect, useCallback } from "react";
 import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
 import { useNavigate } from "react-router";
 import { useApp } from "../../context/AppContext";
@@ -17,112 +16,6 @@ import {
   type AdminUserDetailOut,
 } from "../../api/admin";
 
-
-const PROVIDER_OPTIONS = [
-  { value: "all", label: "전체 수단" },
-  { value: "google", label: "구글" },
-  { value: "kakao", label: "카카오" },
-  { value: "naver", label: "네이버" },
-  { value: "local", label: "이메일" },
-];
-
-const PROVIDER_LABELS: Record<string, string> = {
-  google: "구글",
-  kakao: "카카오",
-  naver: "네이버",
-  local: "이메일",
-};
-
-const PROVIDER_COLORS: Record<string, string> = {
-  google: "bg-blue-500/10 text-blue-600 border-blue-500/20",
-  kakao: "bg-yellow-400/10 text-yellow-700 border-yellow-400/20",
-  naver: "bg-green-500/10 text-green-600 border-green-500/20",
-  local: "bg-purple-500/10 text-purple-600 border-purple-500/20",
-};
-
-function ProviderDropdown({
-  value,
-  onChange,
-  options,
-  minWidth,
-  maxWidth,
-}: {
-  value: string;
-  onChange: (v: string) => void;
-  options: { value: string; label: string }[];
-  minWidth?: number;
-  maxWidth?: number;
-}) {
-  const [open, setOpen] = useState(false);
-  const triggerRef = useRef<HTMLButtonElement>(null);
-  const [pos, setPos] = useState<{ top: number; left: number; width: number } | null>(null);
-
-  const updatePosition = () => {
-    const el = triggerRef.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    setPos({ top: rect.top, left: rect.left, width: rect.width });
-  };
-
-  useLayoutEffect(() => {
-    if (!open) return;
-    updatePosition();
-    const handle = () => updatePosition();
-    window.addEventListener("scroll", handle, true);
-    window.addEventListener("resize", handle);
-    return () => {
-      window.removeEventListener("scroll", handle, true);
-      window.removeEventListener("resize", handle);
-    };
-  }, [open]);
-
-  const triggerHeight = triggerRef.current?.offsetHeight ?? 0;
-  const selected = options.find((o) => o.value === value);
-
-  return (
-    <div className="relative">
-      <button
-        ref={triggerRef}
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        onBlur={() => setTimeout(() => setOpen(false), 150)}
-        className="px-2.5 py-1 rounded-xl border border-sage-100 bg-warm-surface/80
-          focus:outline-none focus:ring-2 focus:ring-sage-50 text-sm font-semibold
-          flex items-center gap-1.5 cursor-pointer"
-      >
-        {selected?.label ?? value}
-        <span className={`text-xs transition-transform ${open ? "rotate-180" : ""}`}>▾</span>
-      </button>
-
-      {open && pos && createPortal(
-        <div
-          style={{
-            position: "fixed",
-            top: pos.top + triggerHeight + 4,
-            left: pos.left,
-            zIndex: 9999,
-            ...(minWidth !== undefined && { minWidth }),
-            ...(maxWidth !== undefined && { maxWidth }),
-          }}
-          className="overflow-hidden bg-sage-50 border border-sage-100 rounded-3xl shadow-lg"
-        >
-          {options.map((o) => (
-            <button
-              key={o.value}
-              onMouseDown={(e) => { e.preventDefault(); onChange(o.value); setOpen(false); }}
-              className={`w-full px-3 py-2 text-sm text-left font-medium transition-colors hover:bg-warm-surface/70 ${
-                o.value === value ? "bg-warm-surface/70" : ""
-              }`}
-            >
-              {o.label}
-            </button>
-          ))}
-        </div>,
-        document.body,
-      )}
-    </div>
-  );
-}
 
 function DatePickerButton({
   value,
@@ -396,14 +289,6 @@ function DetailPanel({
                 <Row label="닉네임" value={detail.user.nickname} />
                 <Row label="이메일" value={detail.user.email} />
                 <Row label="아이디" value={detail.user.username} />
-                <Row
-                  label="가입 수단"
-                  value={
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium border ${PROVIDER_COLORS[detail.user.auth_provider] ?? "bg-muted"}`}>
-                      {PROVIDER_LABELS[detail.user.auth_provider] ?? detail.user.auth_provider}
-                    </span>
-                  }
-                />
                 <Row label="가입일" value={formatDate(detail.user.created_at)} />
                 <Row
                   label="최근 로그인"
@@ -535,7 +420,6 @@ export default function AdminUsers() {
   const [users, setUsers] = useState<AdminUserOut[]>([]);
   const [total, setTotal] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
-  const [provider, setProvider] = useState("all");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [showFilter, setShowFilter] = useState(false);
@@ -551,14 +435,13 @@ export default function AdminUsers() {
   }, [authLoading, user, navigate]);
 
   const fetchUsers = useCallback(
-    async (opts?: { search?: string; provider?: string; date_from?: string; date_to?: string; skip?: number }) => {
+    async (opts?: { search?: string; date_from?: string; date_to?: string; skip?: number }) => {
       if (!token) return;
       setLoading(true);
       setError(null);
       try {
         const result = await listAdminUsers(token, {
           search: opts?.search,
-          provider: opts?.provider,
           date_from: opts?.date_from,
           date_to: opts?.date_to,
           skip: opts?.skip ?? 0,
@@ -585,7 +468,6 @@ export default function AdminUsers() {
     setPage(0);
     fetchUsers({
       search: searchTerm || undefined,
-      provider,
       date_from: dateFrom || undefined,
       date_to: dateTo || undefined,
       skip: 0,
@@ -596,7 +478,6 @@ export default function AdminUsers() {
     setPage(newPage);
     fetchUsers({
       search: searchTerm || undefined,
-      provider,
       date_from: dateFrom || undefined,
       date_to: dateTo || undefined,
       skip: newPage * PAGE_SIZE,
@@ -651,15 +532,6 @@ export default function AdminUsers() {
 
         {showFilter && (
           <div className="flex flex-wrap gap-3 pt-1">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">가입 수단</span>
-              <ProviderDropdown
-                value={provider}
-                onChange={setProvider}
-                options={PROVIDER_OPTIONS}
-                maxWidth={103}
-              />
-            </div>
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-sm text-muted-foreground">가입일</span>
               <DatePickerButton value={dateFrom} onChange={setDateFrom} placeholder="시작일" />
@@ -686,7 +558,6 @@ export default function AdminUsers() {
                   <th className="px-5 py-3 text-left text-xs font-bold text-muted-foreground uppercase">이름</th>
                   <th className="px-5 py-3 text-left text-xs font-bold text-muted-foreground uppercase">이메일</th>
                   <th className="px-5 py-3 text-left text-xs font-bold text-muted-foreground uppercase">가입일</th>
-                  <th className="px-5 py-3 text-left text-xs font-bold text-muted-foreground uppercase">가입 수단</th>
                   <th className="px-5 py-3 text-left text-xs font-bold text-muted-foreground uppercase">구분</th>
                   <th className="px-5 py-3 text-left text-xs font-bold text-muted-foreground uppercase">상태</th>
                   <th className="px-5 py-3" />
@@ -695,7 +566,7 @@ export default function AdminUsers() {
               <tbody className="divide-y divide-border">
                 {users.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="px-6 py-12 text-center text-muted-foreground text-sm">
+                    <td colSpan={6} className="px-6 py-12 text-center text-muted-foreground text-sm">
                       회원이 없습니다.
                     </td>
                   </tr>
@@ -709,11 +580,6 @@ export default function AdminUsers() {
                       <td className="px-5 py-4 text-sm font-medium">{u.name}</td>
                       <td className="px-5 py-4 text-sm text-muted-foreground">{u.email}</td>
                       <td className="px-5 py-4 text-sm text-muted-foreground">{formatDate(u.created_at)}</td>
-                      <td className="px-5 py-4 text-sm">
-                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium border ${PROVIDER_COLORS[u.auth_provider] ?? "bg-muted"}`}>
-                          {PROVIDER_LABELS[u.auth_provider] ?? u.auth_provider}
-                        </span>
-                      </td>
                       <td className="px-5 py-4 text-sm">
                         {u.is_admin ? (
                           <span className="px-2 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-600 border border-amber-500/20">관리자</span>

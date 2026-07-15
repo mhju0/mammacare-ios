@@ -28,13 +28,6 @@ function buildEmail(local: string, domain: string) {
   return normalizeEmail(`${local.trim()}@${domain.trim()}`);
 }
 
-function splitEmail(value: string): [string, string] {
-  const normalized = normalizeEmail(value);
-  const atIndex = normalized.indexOf("@");
-  if (atIndex <= 0 || atIndex !== normalized.lastIndexOf("@")) return ["", ""];
-  return [normalized.slice(0, atIndex), normalized.slice(atIndex + 1)];
-}
-
 function isValidEmailFormat(value: string) {
   const normalized = normalizeEmail(value);
   if (!normalized || /\s/.test(normalized)) return false;
@@ -65,14 +58,6 @@ function getEmailValidationMessage(local: string, domain: string) {
   return "";
 }
 
-function getSocialSignupParams() {
-  if (typeof window === "undefined") return new URLSearchParams();
-  const raw = window.location.hash.startsWith("#")
-    ? window.location.hash.slice(1)
-    : window.location.search.slice(1);
-  return new URLSearchParams(raw);
-}
-
 function isPasswordValid(pw: string) {
   return (
     /[a-zA-Z]/.test(pw) &&
@@ -87,24 +72,16 @@ type Tab = "parent" | "account" | "baby";
 export default function Register() {
   const { registerAndLogin } = useApp();
   const navigate = useNavigate();
-  const [socialSignupParams] = useState(getSocialSignupParams);
-  const socialSignupToken = socialSignupParams.get("token") ?? "";
-  const socialEmail = normalizeEmail(socialSignupParams.get("email") ?? "");
-  const socialName = socialSignupParams.get("name") ?? "";
-  const socialEmailParts = splitEmail(socialEmail);
-  const socialEmailDomain = socialEmailParts[1] ?? "";
 
   const [activeTab, setActiveTab] = useState<Tab>("parent");
 
   // ── 부모님 정보 ──
-  const [name, setName] = useState(socialName);
+  const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [, setEmail] = useState(socialEmail);
-  const [emailId, setEmailId] = useState(socialEmailParts[0] ?? "");
-  const [emailDomain, setEmailDomain] = useState(socialEmailDomain);
-  const [isCustomDomain, setIsCustomDomain] = useState(
-    Boolean(socialEmailDomain && !EMAIL_DOMAIN_OPTIONS.includes(socialEmailDomain)),
-  );
+  const [, setEmail] = useState("");
+  const [emailId, setEmailId] = useState("");
+  const [emailDomain, setEmailDomain] = useState("");
+  const [isCustomDomain, setIsCustomDomain] = useState(false);
   const [domainOpen, setDomainOpen] = useState(false);
   const [emailError, setEmailError] = useState("");
 
@@ -121,7 +98,6 @@ export default function Register() {
   const [showPwConfirm, setShowPwConfirm] = useState(false);
   const [passwordConfirmError, setPasswordConfirmError] = useState("");
   const [signupError, setSignupError] = useState("");
-  const [signupErrorCode, setSignupErrorCode] = useState("");
 
   // ── 유효성 검사 트리거 ──
   const [parentSubmitted, setParentSubmitted] = useState(false);
@@ -238,12 +214,12 @@ export default function Register() {
 
   const resetForm = () => {
     setActiveTab("parent");
-    setName(socialName);
+    setName("");
     setPhone("");
-    setEmail(socialEmail);
-    setEmailId(socialEmailParts[0] ?? "");
-    setEmailDomain(socialEmailDomain);
-    setIsCustomDomain(Boolean(socialEmailDomain && !EMAIL_DOMAIN_OPTIONS.includes(socialEmailDomain)));
+    setEmail("");
+    setEmailId("");
+    setEmailDomain("");
+    setIsCustomDomain(false);
     setEmailError("");
     setNickname("");
     setNicknameStatus(null);
@@ -258,7 +234,6 @@ export default function Register() {
   const handleSubmit = async (babyInfo: Omit<BabyProfile, "id">, babyFile?: File | null) => {
     if (!canContinueToBaby) return;
     setSignupError("");
-    setSignupErrorCode("");
     const result = await registerAndLogin({
       username: userId,
       password,
@@ -266,7 +241,6 @@ export default function Register() {
       nickname,
       email: currentEmail,
       phone: phone || undefined,
-      oauth_signup_token: socialSignupToken || undefined,
       baby_profile: babyInfo,
     }, babyFile);
     if (result.success) {
@@ -279,10 +253,8 @@ export default function Register() {
       return;
     }
     const errorMsg = result.error ?? "회원가입에 실패했습니다. 다시 시도해주세요.";
-    const errorCode = result.errorCode ?? "";
     resetForm();
     setSignupError(errorMsg);
-    setSignupErrorCode(errorCode);
   };
 
   return (
@@ -310,15 +282,6 @@ export default function Register() {
       {signupError && (
         <div className="rounded-2xl border border-destructive/30 bg-destructive/10 px-4 py-3 mb-4">
           <p className="text-sm font-semibold text-destructive">{signupError}</p>
-          {signupErrorCode === "EMAIL_ALREADY_EXISTS_SOCIAL_NOT_CONNECTED" && (
-            <button
-              type="button"
-              onClick={() => navigate("/login")}
-              className="mt-2 text-sm font-semibold text-foreground underline underline-offset-4"
-            >
-              기존 계정으로 로그인하기
-            </button>
-          )}
         </div>
       )}
 

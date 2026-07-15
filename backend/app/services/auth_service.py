@@ -9,11 +9,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.constants import _normalize_phone
 from app.core.security import (
     create_access_token,
-    decode_oauth_signup_token,
     hash_password,
     verify_password,
 )
-from app.models.oauth_account import OAuthAccount
 from app.models.parent_user import ParentUser
 from app.schemas.auth import ResetPasswordRequest, SignupRequest, normalize_email
 
@@ -127,28 +125,6 @@ async def reset_password(db: AsyncSession, payload: ResetPasswordRequest) -> Non
 # [signup]
 async def signup(db: AsyncSession, payload: SignupRequest) -> ParentUser:
     """Create a new local parent_user. Raises 409 on duplicates."""
-    oauth_payload = None
-    if payload.oauth_signup_token:
-        try:
-            oauth_payload = decode_oauth_signup_token(payload.oauth_signup_token)
-        except ValueError:
-            _raise_auth_error(
-                status.HTTP_400_BAD_REQUEST,
-                "OAUTH_SIGNUP_TOKEN_INVALID",
-                "소셜 가입 정보가 만료되었습니다. 다시 시도해주세요.",
-            )
-        existing_oauth = await db.execute(
-            select(OAuthAccount.id).where(
-                OAuthAccount.provider == oauth_payload["provider"],
-                OAuthAccount.provider_user_id == oauth_payload["provider_user_id"],
-            )
-        )
-        if existing_oauth.scalar_one_or_none() is not None:
-            _raise_auth_error(
-                status.HTTP_409_CONFLICT,
-                "OAUTH_ACCOUNT_ALREADY_LINKED",
-                "이미 다른 계정에 연결된 소셜 계정입니다.",
-            )
     # ── 1) 중복 검사 — DB 유니크 제약 위반 전에 친절한 한국어 에러 반환 ──
     if not await username_available(db, payload.username):
         _raise_auth_error(
@@ -157,12 +133,6 @@ async def signup(db: AsyncSession, payload: SignupRequest) -> ParentUser:
             "이미 사용 중인 아이디입니다.",
         )
     if not await email_available(db, payload.email):
-        if oauth_payload:
-            _raise_auth_error(
-                status.HTTP_409_CONFLICT,
-                "EMAIL_ALREADY_EXISTS_SOCIAL_NOT_CONNECTED",
-                "이미 가입된 이메일입니다. 기존 계정으로 로그인 후 소셜 계정을 연결해주세요.",
-            )
         _raise_auth_error(
             status.HTTP_409_CONFLICT,
             "EMAIL_ALREADY_EXISTS",
@@ -181,7 +151,6 @@ async def signup(db: AsyncSession, payload: SignupRequest) -> ParentUser:
             username=payload.username,
             email=payload.email,
             password_hash=hash_password(payload.password),
-            auth_provider=oauth_payload["provider"] if oauth_payload else "local",
             name=payload.name,
             nickname=payload.nickname,
             phone=payload.phone,
@@ -189,16 +158,6 @@ async def signup(db: AsyncSession, payload: SignupRequest) -> ParentUser:
         )
         db.add(user)
         await db.flush()
-
-        if oauth_payload:
-            db.add(
-                OAuthAccount(
-                    parent_id=user.id,
-                    provider=oauth_payload["provider"],
-                    provider_user_id=oauth_payload["provider_user_id"],
-                    provider_email=oauth_payload.get("email"),
-                )
-            )
 
         await db.commit()
         await db.refresh(user)              # DB가 채운 created_at 등을 객체에 반영

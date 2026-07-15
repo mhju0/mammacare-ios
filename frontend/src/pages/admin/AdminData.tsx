@@ -22,14 +22,6 @@ const PERIOD_OPTIONS = [
   { value: "quarter", label: "이번 분기 (90일)" },
 ] as const;
 
-const PROVIDER_OPTIONS = [
-  { value: "all", label: "전체 경로" },
-  { value: "google", label: "구글" },
-  { value: "kakao", label: "카카오" },
-  { value: "naver", label: "네이버" },
-  { value: "local", label: "이메일" },
-];
-
 const AGE_GROUP_OPTIONS = [
   { value: "all", label: "전체" },
   { value: "0-6", label: "0~6개월" },
@@ -38,18 +30,6 @@ const AGE_GROUP_OPTIONS = [
   { value: "24+", label: "24개월+" },
 ];
 
-const PROVIDER_COLORS: Record<string, string> = {
-  google: "#A9C6B0",
-  kakao: "#F0DFAE",
-  naver: "#A9C6B0",
-  local: "#A9C6B0",
-};
-const PROVIDER_LABELS: Record<string, string> = {
-  google: "구글",
-  kakao: "카카오",
-  naver: "네이버",
-  local: "이메일",
-};
 const SEVERITY_COLORS = ["#A9C6B0", "#F0DFAE", "#E3A24C", "#E0A48F", "#DDE8DD"];
 const STATUS_LABELS: Record<string, string> = {
   planned: "예정",
@@ -173,7 +153,6 @@ export default function AdminData() {
 
   const [activeTab, setActiveTab] = useState<"users" | "features" | "babies">("users");
   const [period, setPeriod] = useState<string>("month");
-  const [provider, setProvider] = useState("all");
   const [ageGroup, setAgeGroup] = useState("all");
   const [data, setData] = useState<AdminDashboardOut | null>(null);
   const [loading, setLoading] = useState(false);
@@ -193,17 +172,11 @@ export default function AdminData() {
     if (!token || !user?.isAdmin) return;
     setLoading(true);
     setError(null);
-    getAdminDashboard(token, { period, provider, age_group: ageGroup })
+    getAdminDashboard(token, { period, age_group: ageGroup })
       .then(setData)
       .catch((e: unknown) => setError(e instanceof Error ? e.message : "데이터를 불러오지 못했습니다."))
       .finally(() => setLoading(false));
-  }, [token, user, period, provider, ageGroup]);
-
-  const providerChartData = data?.provider_distribution.map((p) => ({
-    name: PROVIDER_LABELS[p.provider] ?? p.provider,
-    value: p.count,
-    color: PROVIDER_COLORS[p.provider] ?? "#6b7280",
-  })) ?? [];
+  }, [token, user, period, ageGroup]);
 
   const scheduleChartData = data?.schedule_status_dist.map((s) => ({
     name: STATUS_LABELS[s.status] ?? s.status,
@@ -226,7 +199,6 @@ export default function AdminData() {
         </div>
         <div className="flex flex-wrap gap-2">
           <FilterSelect value={period} onChange={setPeriod} options={PERIOD_OPTIONS as unknown as { value: string; label: string }[]} maxWidth={140} />
-          <FilterSelect value={provider} onChange={setProvider} options={PROVIDER_OPTIONS} maxWidth={107} />
           <FilterSelect value={ageGroup} onChange={setAgeGroup} options={AGE_GROUP_OPTIONS} maxWidth={100} />
         </div>
       </div>
@@ -270,9 +242,9 @@ export default function AdminData() {
           )}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 gap-5">
           {/* 신규 가입자 추이 */}
-          <ChartCard title="신규 가입자 추이" className="lg:col-span-2">
+          <ChartCard title="신규 가입자 추이">
             {loading ? <Skeleton className="h-52" /> : (
               <ResponsiveContainer width="100%" height={200}>
                 <AreaChart data={data?.new_users_trend ?? []} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
@@ -289,35 +261,6 @@ export default function AdminData() {
                   <Area type="monotone" dataKey="count" name="신규 가입" stroke={CHART_PRIMARY} fill="url(#colorUser)" strokeWidth={2} dot={false} />
                 </AreaChart>
               </ResponsiveContainer>
-            )}
-          </ChartCard>
-
-          {/* OAuth 제공자별 비율 */}
-          <ChartCard title="가입 경로별 비율">
-            {loading ? <Skeleton className="h-52" /> : providerChartData.length === 0 ? (
-              <div className="h-52 flex items-center justify-center text-sm text-muted-foreground">데이터 없음</div>
-            ) : (
-              <>
-                <ResponsiveContainer width="100%" height={160}>
-                  <PieChart>
-                    <Pie data={providerChartData} cx="50%" cy="50%" innerRadius={45} outerRadius={70} paddingAngle={3} dataKey="value">
-                      {providerChartData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
-                    </Pie>
-                    <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12, fontSize: 13 }} />
-                  </PieChart>
-                </ResponsiveContainer>
-                <div className="flex flex-col gap-1.5 mt-2">
-                  {providerChartData.map((p) => (
-                    <div key={p.name} className="flex items-center justify-between text-xs">
-                      <div className="flex items-center gap-1.5">
-                        <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: p.color }} />
-                        <span>{p.name}</span>
-                      </div>
-                      <span className="font-medium">{p.value}명</span>
-                    </div>
-                  ))}
-                </div>
-              </>
             )}
           </ChartCard>
         </div>

@@ -23,7 +23,6 @@ class ParentUserOut(BaseModel):
     nickname: str
     phone: str | None
     address: str | None
-    auth_provider: str
     is_admin: bool = False
     created_at: datetime
     notify_meal_time: bool = True

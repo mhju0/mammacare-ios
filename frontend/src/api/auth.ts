@@ -10,7 +10,6 @@ export interface AuthResponse {
     nickname: string;
     phone: string | null;
     address: string | null;
-    auth_provider: string;
     is_admin: boolean;
     notify_meal_time?: boolean;
     notify_allergy_check?: boolean;
@@ -46,7 +45,6 @@ export async function signupApi(payload: {
   email: string;
   phone?: string;
   address?: string;
-  oauth_signup_token?: string;
 }): Promise<AuthResponse> {
   return apiFetch<AuthResponse>("/auth/signup", {
     method: "POST",

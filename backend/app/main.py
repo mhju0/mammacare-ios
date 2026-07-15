@@ -34,7 +34,6 @@ logger = logging.getLogger("mammacare")
 
 openapi_tags = [
     {"name": "auth",        "description": "로컬 회원가입 / 로그인 / 토큰 관리"},
-    {"name": "oauth",       "description": "Google / Kakao / Naver 소셜 로그인"},
     {"name": "users",       "description": "부모 사용자 프로필"},
     {"name": "babies",      "description": "아기 프로필 CRUD"},
     {"name": "ingredients", "description": "식재료 목록 · 영양소"},
@@ -120,20 +119,6 @@ async def _apply_column_migrations(conn) -> None:
                 ALTER TABLE baby_user ALTER COLUMN photo_profile_baby TYPE TEXT;
             END IF;
         END $$
-    """))
-    await conn.execute(text("""
-        DO $$
-        BEGIN
-            IF NOT EXISTS (
-                SELECT 1
-                FROM pg_constraint
-                WHERE conname = 'uq_oauth_account_parent_provider'
-            ) THEN
-                ALTER TABLE oauth_account
-                ADD CONSTRAINT uq_oauth_account_parent_provider
-                UNIQUE (parent_id, provider);
-            END IF;
-        END $$;
     """))
 
 

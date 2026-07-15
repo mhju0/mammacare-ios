@@ -1,7 +1,5 @@
 import re
 
-SUPPORTED_PROVIDERS = frozenset({"google", "kakao", "naver"})
-
 PHONE_RE = re.compile(r"^010-?\d{4}-?\d{4}$")
 
 

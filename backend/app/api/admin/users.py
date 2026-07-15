@@ -21,7 +21,6 @@ async def list_users(
     _: CurrentAdmin,
     db: DB,
     search: str | None = Query(default=None),
-    provider: str | None = Query(default=None),
     date_from: str | None = Query(default=None),
     date_to: str | None = Query(default=None),
     skip: int = Query(default=0, ge=0),
@@ -32,7 +31,6 @@ async def list_users(
         search=search,
         skip=skip,
         limit=limit,
-        provider=provider,
         date_from=date_from,
         date_to=date_to,
     )

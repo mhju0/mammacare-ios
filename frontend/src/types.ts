@@ -28,7 +28,6 @@ export interface ParentUser {
   username: string;
   phone: string | null;
   address: string | null;
-  auth_provider: string;
   isAdmin?: boolean;
   notify_meal_time?: boolean;
   notify_allergy_check?: boolean;

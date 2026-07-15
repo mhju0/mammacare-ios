@@ -15,7 +15,6 @@ from app.db.session import engine
 # ── minhyun 담당 모델 ─────────────────────────────────────────────────────────
 from app.models.parent_user import ParentUser  # noqa: F401
 from app.models.baby_user import BabyUser  # noqa: F401
-from app.models.oauth_account import OAuthAccount  # noqa: F401
 from app.models.notification import Notification  # noqa: F401
 
 # ── 다른 팀원 담당 모델 (import 만으로 Base.metadata 에 등록됨) ──────────────

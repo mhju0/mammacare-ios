@@ -44,7 +44,6 @@ class SignupRequest(BaseModel):
     email: EmailStr
     phone: str | None = None
     address: str | None = None
-    oauth_signup_token: str | None = None
 
     _v_user = field_validator("username")(lambda cls, v: _validate_username(v))
     _v_pw = field_validator("password")(lambda cls, v: _validate_password(v))
