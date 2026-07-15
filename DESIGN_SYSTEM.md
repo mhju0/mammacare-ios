@@ -82,4 +82,4 @@
 ## 참고
 - 초기 시안(알레르기 대시보드)은 clinic 토큰으로 만들어졌고, 2026-07부터 `docs/mocks/warm-kr/` 시안 기준으로 오버홀 중이다.
 - 시안 커버리지·미생성 화면·생성 절차(higgsfield)·외부 레퍼런스(Solid Starts/Huckleberry 등)는 `docs/mocks/README.md`.
-- BottomNav: 현재 코드는 메뉴/일정/홈/알레르기/커뮤니티 5탭(`Layout.tsx`), warm-kr 시안은 Home/Ingredients/Observe/Reports/Profile 5탭. 재구성은 오너 결정 대기(ROADMAP P3).
+- BottomNav: 현재 코드는 **4탭 홈/재료/리포트/설정**(`Layout.tsx`, 2026-07-15 적용). 관찰은 진행중 테스트 카드에서 진입(`/observe` 유지), 프로필은 헤더 아이콘+설정에서 진입.
