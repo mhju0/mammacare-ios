@@ -7,7 +7,9 @@
   "packageManager": "pnpm@11.8.0",
   "scripts": {
     "dev": "vite",
-    "build": "vite build --mode web"
+    "build": "vite build --mode web",
+    "ios:live": "CAP_SERVER_URL=http://localhost:5173 cap copy ios",
+    "ios:bundle": "vite build --mode web && cap copy ios"
   },
   "dependencies": {
     "@capacitor/app": "^8.1.0",
