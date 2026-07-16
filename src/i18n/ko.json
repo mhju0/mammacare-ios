@@ -1,5 +1,4 @@
 {
-  "appName": "알레르기 트래커",
   "status": { "untried": "안 먹어봄", "testing": "테스트 중", "safe": "안전", "reacted": "반응" },
   "home": {
     "title": "알레르기 트래커",
@@ -9,7 +8,6 @@
     "readyToConfirm": "관찰 기간 종료 — 어땠나요?",
     "markSafe": "안전으로 표시",
     "logReaction": "반응 기록",
-    "allFoods": "전체 재료",
     "empty": "아직 테스트 기록이 없어요. “새 재료 시작하기”를 눌러보세요.",
     "calendar": "캘린더"
   },
@@ -64,8 +62,7 @@
     "exportPdf": "진료용 리포트 (PDF)",
     "exportJson": "데이터 백업 (JSON)",
     "privacy": "아기의 데이터는 이 기기 밖으로 나가지 않습니다.",
-    "disclaimer": "이 앱은 기록 보조 도구이며 의학적 조언이 아닙니다.",
-    "save": "저장"
+    "disclaimer": "이 앱은 기록 보조 도구이며 의학적 조언이 아닙니다."
   },
   "notif": {
     "checkinTitle": "{{day}}일째: {{food}}",
@@ -89,7 +86,6 @@
     "noEvents": "기록이 없어요",
     "weekday": { "w0": "일", "w1": "월", "w2": "화", "w3": "수", "w4": "목", "w5": "금", "w6": "토" }
   },
-  "common": { "cancel": "취소", "ok": "확인", "notNow": "나중에" },
   "errors": { "generic": "문제가 발생했어요. 잠시 후 다시 시도해 주세요." },
   "foodName": {
     "egg": "달걀", "milk": "우유", "wheat": "밀", "peanut": "땅콩", "soy": "대두",

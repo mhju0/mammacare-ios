@@ -10,15 +10,20 @@ never leaves the phone.**
 1. Pick a food (56 built-in — big-9 allergens flagged high-risk — or add your own).
 2. Start a trial. The app schedules gentle check-in reminders through the
    watch window (default 3 days). One food at a time — that's the point.
-3. Log a reaction (symptoms, severity, notes) → food turns **red**.
+3. During a trial, one tap logs 이상 없음 — an affirmative "no reaction
+   observed" check-in — without ending the trial.
+4. Log a reaction (symptoms, severity, notes) → food turns **red**.
    Window passes clean → **green**. The Foods list is the answer to
    "can my baby eat this?"
-4. One tap exports a doctor-ready PDF report or a JSON backup.
+5. The calendar's month view tints each day inside a trial window and marks
+   reaction/check-in dots, with a per-day event list below.
+6. One tap exports a doctor-ready PDF report or a JSON backup.
 
 ## Stack
 Expo (React Native, TypeScript) · Expo Router · expo-sqlite + Drizzle ORM
 (on-device relational DB, statuses derived at read time, never stored) ·
-expo-notifications (all local) · i18next (한국어 전용 UI) · Jest.
+expo-notifications (all local) · i18next (한국어 전용 UI) · Jest ·
+hand-rolled editorial UI system (paper/ink/persimmon tokens).
 
 ## Run
 ```bash
