@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system/legacy';
@@ -84,6 +85,14 @@ export default function Settings() {
           if (name) updateBabySettings({ name });
         }}
         style={{ borderWidth: 1, borderColor: colors.border, borderRadius: 10, padding: 12, fontSize: 16 }}
+      />
+
+      <Text style={{ fontSize: 14, fontWeight: '700', color: colors.text }}>{t('setup.birthdate')}</Text>
+      <DateTimePicker
+        value={baby.birthdate}
+        mode="date"
+        maximumDate={new Date()}
+        onChange={(_, d) => d && updateBabySettings({ birthdate: d })}
       />
 
       <Text style={{ fontSize: 14, fontWeight: '700', color: colors.text }}>{t('settings.window')}</Text>

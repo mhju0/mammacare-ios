@@ -16,15 +16,16 @@ initNotificationHandler();
 export default function RootLayout() {
   const { success, error } = useMigrations(db, migrations);
   const [seeded, setSeeded] = useState(false);
+  const [seedError, setSeedError] = useState<Error | null>(null);
 
   useEffect(() => {
-    if (success) seedIfEmpty().then(() => setSeeded(true));
+    if (success) seedIfEmpty().then(() => setSeeded(true)).catch((e) => setSeedError(e instanceof Error ? e : new Error(String(e))));
   }, [success]);
 
-  if (error) {
+  if (error || seedError) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', padding: 24 }}>
-        <Text style={{ color: colors.danger }}>DB migration failed: {error.message}</Text>
+        <Text style={{ color: colors.danger }}>DB init failed: {(error ?? seedError)!.message}</Text>
       </View>
     );
   }

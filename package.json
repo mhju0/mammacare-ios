@@ -2,6 +2,9 @@
   "name": "allergy-tracker",
   "main": "expo-router/entry",
   "version": "1.0.0",
+  "license": "MIT",
+  "description": "Baby food-allergy tracker — one food at a time, traffic-light statuses. Native iOS, 100% on-device.",
+  "repository": "github.com/mhju0/allergy-tracker",
   "dependencies": {
     "@expo/ui": "~57.0.6",
     "@react-native-community/datetimepicker": "9.1.0",
