@@ -1,0 +1,191 @@
+import { useMemo, useState } from 'react';
+import { Pressable, ScrollView, Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useCheckins, useFoodsWithStatus, useReactions } from '../src/data/queries';
+import { dayMark, monthMatrix, sameLocalDay } from '../src/domain/calendar';
+import { foodLabel } from '../src/i18n';
+import type { Food } from '../src/db/schema';
+import { colors } from '../src/ui/tokens';
+
+const eyebrowStyle = { fontSize: 10, fontWeight: '700' as const, letterSpacing: 2.2, color: colors.muted, paddingBottom: 12 };
+const navBtnStyle = { minWidth: 44, minHeight: 44, alignItems: 'center' as const, justifyContent: 'center' as const };
+const weekdayKeys = ['w0', 'w1', 'w2', 'w3', 'w4', 'w5', 'w6'] as const;
+
+type EventRow = { key: string; at: Date; color: string; outline: boolean; text: string };
+
+export default function Calendar() {
+  const { t } = useTranslation();
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const foods = useFoodsWithStatus();
+  const reactions = useReactions();
+  const checkins = useCheckins();
+
+  const [display, setDisplay] = useState(() => {
+    const d = new Date();
+    return { year: d.getFullYear(), month0: d.getMonth() };
+  });
+  const [selectedDate, setSelectedDate] = useState(() => new Date());
+
+  const goPrevMonth = () =>
+    setDisplay(({ year, month0 }) => (month0 === 0 ? { year: year - 1, month0: 11 } : { year, month0: month0 - 1 }));
+  const goNextMonth = () =>
+    setDisplay(({ year, month0 }) => (month0 === 11 ? { year: year + 1, month0: 0 } : { year, month0: month0 + 1 }));
+
+  const cells = useMemo(() => monthMatrix(display.year, display.month0), [display.year, display.month0]);
+  const weeks = useMemo(() => {
+    const w = [];
+    for (let i = 0; i < cells.length; i += 7) w.push(cells.slice(i, i + 7));
+    return w;
+  }, [cells]);
+
+  const allTrials = useMemo(() => foods.flatMap((f) => f.trials), [foods]);
+  const reactionDays = useMemo(() => reactions.map((r) => r.occurredAt), [reactions]);
+  const checkinDays = useMemo(() => checkins.map((c) => c.occurredAt), [checkins]);
+  const foodByTrialId = useMemo(() => {
+    const m = new Map<string, Food>();
+    for (const { food, trials } of foods) for (const tr of trials) m.set(tr.id, food);
+    return m;
+  }, [foods]);
+
+  const events = useMemo(() => {
+    const rows: EventRow[] = [];
+    for (const { food, trials } of foods) {
+      const label = foodLabel(food);
+      for (const tr of trials) {
+        if (sameLocalDay(tr.startedAt, selectedDate)) {
+          rows.push({ key: `start-${tr.id}`, at: tr.startedAt, color: colors.amber, outline: false, text: `${label} — ${t('calendar.trialStart')}` });
+        }
+        // outcome 'reacted' is skipped here — the matching reaction row below already covers that moment.
+        if (tr.outcome && tr.outcome !== 'reacted' && tr.endedAt && sameLocalDay(tr.endedAt, selectedDate)) {
+          rows.push({
+            key: `end-${tr.id}`,
+            at: tr.endedAt,
+            color: tr.outcome === 'safe' ? colors.green : colors.muted,
+            outline: tr.outcome === 'cancelled',
+            text: `${label} — ${t(`food.outcome.${tr.outcome}`)}`,
+          });
+        }
+      }
+    }
+    for (const r of reactions) {
+      if (!sameLocalDay(r.occurredAt, selectedDate)) continue;
+      const label = foodByTrialId.has(r.trialId) ? foodLabel(foodByTrialId.get(r.trialId)!) : '';
+      const symptoms = r.symptoms.map((s) => t(`reaction.symptom.${s}`)).join(', ');
+      rows.push({
+        key: `reaction-${r.id}`, at: r.occurredAt, color: colors.red, outline: false,
+        text: `${label} — ${t(`reaction.severityLevel.${r.severity}`)} · ${symptoms}`,
+      });
+    }
+    for (const c of checkins) {
+      if (!sameLocalDay(c.occurredAt, selectedDate)) continue;
+      const label = foodByTrialId.has(c.trialId) ? foodLabel(foodByTrialId.get(c.trialId)!) : '';
+      rows.push({ key: `checkin-${c.id}`, at: c.occurredAt, color: colors.green, outline: false, text: `${label} — ${t('food.checkinClear')}` });
+    }
+    return rows.sort((a, b) => a.at.getTime() - b.at.getTime());
+  }, [foods, reactions, checkins, foodByTrialId, selectedDate, t]);
+
+  return (
+    <ScrollView contentContainerStyle={{ padding: 22, paddingTop: insets.top + 4, backgroundColor: colors.paper }}>
+      <Pressable
+        accessibilityRole="button"
+        onPress={() => router.back()}
+        hitSlop={{ top: 8, bottom: 8, left: 12, right: 12 }}
+        style={{ minHeight: 44, justifyContent: 'center' }}
+      >
+        <Text style={eyebrowStyle}>
+          <Text style={{ color: colors.muted }}>‹ </Text>
+          {t('calendar.title')}
+        </Text>
+      </Pressable>
+
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+        <Text style={{ fontSize: 30, fontWeight: '900', color: colors.ink, letterSpacing: -0.3 }}>
+          {t('calendar.monthTitle', { year: display.year, month: display.month0 + 1 })}
+        </Text>
+        <View style={{ flexDirection: 'row' }}>
+          <Pressable accessibilityRole="button" onPress={goPrevMonth} style={navBtnStyle}>
+            <Text style={{ fontSize: 18, color: colors.muted }}>‹</Text>
+          </Pressable>
+          <Pressable accessibilityRole="button" onPress={goNextMonth} style={navBtnStyle}>
+            <Text style={{ fontSize: 18, color: colors.muted }}>›</Text>
+          </Pressable>
+        </View>
+      </View>
+
+      <View style={{ flexDirection: 'row', paddingBottom: 6, borderBottomWidth: 1, borderColor: colors.hairline }}>
+        {weekdayKeys.map((wk, i) => (
+          <Text
+            key={wk}
+            style={{ flex: 1, textAlign: 'center', fontSize: 10.5, fontWeight: '800', color: i === 0 ? colors.red : colors.muted }}
+          >
+            {t(`calendar.weekday.${wk}`)}
+          </Text>
+        ))}
+      </View>
+
+      <View style={{ paddingTop: 6 }}>
+        {weeks.map((week, wi) => (
+          <View key={wi} style={{ flexDirection: 'row' }}>
+            {week.map((cell) => {
+              const mark = dayMark(cell.date, allTrials, reactionDays, checkinDays);
+              const isSelected = sameLocalDay(cell.date, selectedDate);
+              const bg = mark.tint === 'amber' ? colors.amberTint : mark.tint === 'red' ? colors.redTint : 'transparent';
+              const fg = !cell.inMonth ? colors.dayOutMonth : mark.tint === 'amber' ? colors.amber : mark.tint === 'red' ? colors.red : colors.ink;
+              return (
+                <Pressable
+                  key={cell.date.toISOString()}
+                  accessibilityRole="button"
+                  onPress={() => setSelectedDate(cell.date)}
+                  style={{
+                    flex: 1, aspectRatio: 1, margin: 1.5, borderRadius: 9,
+                    backgroundColor: bg, alignItems: 'center', justifyContent: 'center',
+                    borderWidth: isSelected ? 2 : 0, borderColor: colors.ink,
+                  }}
+                >
+                  <Text style={{ fontSize: 12.5, fontWeight: '700', color: fg }}>{cell.date.getDate()}</Text>
+                  {mark.dot && (
+                    <View
+                      style={{
+                        position: 'absolute', bottom: 4, width: 4, height: 4, borderRadius: 999,
+                        backgroundColor: mark.dot === 'red' ? colors.red : colors.green,
+                      }}
+                    />
+                  )}
+                </Pressable>
+              );
+            })}
+          </View>
+        ))}
+      </View>
+
+      <Text style={{ fontSize: 11, fontWeight: '800', letterSpacing: 1.5, color: colors.muted, marginTop: 18, marginBottom: 4 }}>
+        {selectedDate.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'long' })}
+      </Text>
+      {events.length === 0 ? (
+        <Text style={{ fontSize: 14, color: colors.muted, paddingVertical: 12 }}>{t('calendar.noEvents')}</Text>
+      ) : (
+        events.map((ev) => (
+          <View
+            key={ev.key}
+            style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8, paddingVertical: 9, borderBottomWidth: 1, borderColor: colors.hairline }}
+          >
+            <View
+              style={
+                ev.outline
+                  ? { width: 5, height: 5, borderRadius: 999, borderWidth: 1.5, borderColor: colors.muted }
+                  : { width: 7, height: 7, borderRadius: 999, backgroundColor: ev.color }
+              }
+            />
+            <Text style={{ fontSize: 13.5, fontWeight: '600', color: ev.color, flexShrink: 1 }}>{ev.text}</Text>
+            <Text style={{ fontSize: 12, color: colors.muted, marginLeft: 'auto' }}>
+              {ev.at.toLocaleTimeString('ko-KR', { hour: 'numeric', minute: '2-digit' })}
+            </Text>
+          </View>
+        ))
+      )}
+    </ScrollView>
+  );
+}

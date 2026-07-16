@@ -82,6 +82,13 @@
     "none": "없음",
     "colFood": "재료", "colStatus": "상태", "colLastTried": "마지막 시도"
   },
+  "calendar": {
+    "title": "캘린더",
+    "monthTitle": "{{year}}년 {{month}}월",
+    "trialStart": "테스트 시작",
+    "noEvents": "기록이 없어요",
+    "weekday": { "w0": "일", "w1": "월", "w2": "화", "w3": "수", "w4": "목", "w5": "금", "w6": "토" }
+  },
   "common": { "cancel": "취소", "ok": "확인", "notNow": "나중에" },
   "errors": { "generic": "문제가 발생했어요. 잠시 후 다시 시도해 주세요." },
   "foodName": {

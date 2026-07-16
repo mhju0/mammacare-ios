@@ -13,6 +13,7 @@ const ink = '#26241F';
 const muted = '#8B8578';
 const hairline = '#E4DED2';
 const accent = '#D96C3D';
+const dayOutMonth = '#C9C2B4'; // calendar grid: muted out-of-month day number
 
 export const colors = {
   paper,
@@ -26,6 +27,7 @@ export const colors = {
   amberTint,
   greenTint,
   redTint,
+  dayOutMonth,
 
   // legacy-shaped aliases — existing call sites (colors.text, colors.bg, ...) keep working unchanged.
   bg: paper,

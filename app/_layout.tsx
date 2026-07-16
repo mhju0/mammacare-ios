@@ -42,6 +42,7 @@ function AppStack() {
       <Stack.Screen name="index" />
       <Stack.Screen name="foods" />
       <Stack.Screen name="food/[id]" />
+      <Stack.Screen name="calendar" />
       <Stack.Screen name="log-reaction" options={{ presentation: 'modal' }} />
       <Stack.Screen name="settings" options={{ presentation: 'modal' }} />
     </Stack>
