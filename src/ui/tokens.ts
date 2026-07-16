@@ -1,19 +1,53 @@
+import type { FoodStatus } from '../domain/status';
+
+// Editorial design bible (owner-approved 2026-07-17).
+const amber = '#B0761F';
+const green = '#2E7D4F';
+const red = '#A8432B';
+const amberTint = '#F3E5C9';
+const greenTint = '#DFEEDF';
+const redTint = '#F3DED7';
+
+const paper = '#FAF7F0';
+const ink = '#26241F';
+const muted = '#8B8578';
+const hairline = '#E4DED2';
+const accent = '#D96C3D';
+
 export const colors = {
-  bg: '#FFFFFF',
-  surface: '#F7F7F5',
-  text: '#1C1C1E',
-  textMuted: '#6E6E73',
-  border: '#E3E3E0',
-  accent: '#1C1C1E',
-  danger: '#B91C1C',
+  paper,
+  ink,
+  muted,
+  hairline,
+  accent,
+  amber,
+  green,
+  red,
+  amberTint,
+  greenTint,
+  redTint,
+
+  // legacy-shaped aliases — existing call sites (colors.text, colors.bg, ...) keep working unchanged.
+  bg: paper,
+  surface: paper,
+  text: ink,
+  textMuted: muted,
+  border: hairline,
+  danger: red,
   status: {
-    untried: { fg: '#55555A', bg: '#EFEFED' },
-    testing: { fg: '#8A5A00', bg: '#FCF0D3' },
-    safe:    { fg: '#166534', bg: '#DDF3E1' },
-    reacted: { fg: '#991B1B', bg: '#FBE2E0' },
+    untried: { fg: muted, bg: paper },
+    testing: { fg: amber, bg: amberTint },
+    safe: { fg: green, bg: greenTint },
+    reacted: { fg: red, bg: redTint },
   },
 } as const;
 
-export const statusIcon = {
-  untried: '○', testing: '◐', safe: '✓', reacted: '✕',
-} as const;
+export const statusIcon: Record<FoodStatus, string> = {
+  untried: '○',
+  testing: '◐',
+  safe: '✓',
+  reacted: '✕',
+};
+
+// Reused across pills/chips/dots — not a full scale, just the one radius that recurs everywhere.
+export const radii = { pill: 999 };

@@ -1,19 +1,30 @@
 import { Pressable, Text } from 'react-native';
-import { colors } from './tokens';
+import { colors, radii } from './tokens';
 
 type Props = { label: string; onPress: () => void; variant?: 'primary' | 'secondary' | 'danger'; disabled?: boolean };
 
 export function Button({ label, onPress, variant = 'primary', disabled }: Props) {
-  const bg = variant === 'primary' ? colors.accent : variant === 'danger' ? colors.danger : colors.surface;
-  const fg = variant === 'secondary' ? colors.text : colors.bg;
+  const isPrimary = variant === 'primary';
+  const isDanger = variant === 'danger';
+  const borderColor = isDanger ? colors.red : colors.ink;
+  const fg = isPrimary ? '#FFFFFF' : isDanger ? colors.red : colors.ink;
+
   return (
     <Pressable
       onPress={onPress}
       disabled={disabled}
-      style={{ backgroundColor: bg, opacity: disabled ? 0.4 : 1, paddingVertical: 14,
-        borderRadius: 12, alignItems: 'center' }}
+      accessibilityRole="button"
+      style={{
+        backgroundColor: isPrimary ? colors.accent : 'transparent',
+        borderWidth: isPrimary ? 0 : 1.5,
+        borderColor,
+        opacity: disabled ? 0.4 : 1,
+        paddingVertical: isPrimary ? 14 : 12.5,
+        borderRadius: radii.pill,
+        alignItems: 'center',
+      }}
     >
-      <Text style={{ color: fg, fontSize: 16, fontWeight: '600' }}>{label}</Text>
+      <Text style={{ color: fg, fontSize: 15, fontWeight: '700' }}>{label}</Text>
     </Pressable>
   );
 }

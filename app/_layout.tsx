@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Text, View } from 'react-native';
 import { Stack } from 'expo-router';
-import { useTranslation } from 'react-i18next';
 import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
 import migrations from '../drizzle/migrations';
 import '../src/i18n';
@@ -33,20 +32,18 @@ export default function RootLayout() {
 }
 
 function AppStack() {
-  const { t } = useTranslation();
   return (
     <Stack
       screenOptions={{
-        headerShadowVisible: false,
-        headerStyle: { backgroundColor: colors.bg },
-        contentStyle: { backgroundColor: colors.bg },
+        headerShown: false,
+        contentStyle: { backgroundColor: colors.paper },
       }}
     >
-      <Stack.Screen name="index" options={{ title: t('home.title') }} />
-      <Stack.Screen name="foods" options={{ title: t('foods.title') }} />
-      <Stack.Screen name="food/[id]" options={{ title: '' }} />
-      <Stack.Screen name="log-reaction" options={{ title: t('reaction.title'), presentation: 'modal' }} />
-      <Stack.Screen name="settings" options={{ title: t('settings.title'), presentation: 'modal' }} />
+      <Stack.Screen name="index" />
+      <Stack.Screen name="foods" />
+      <Stack.Screen name="food/[id]" />
+      <Stack.Screen name="log-reaction" options={{ presentation: 'modal' }} />
+      <Stack.Screen name="settings" options={{ presentation: 'modal' }} />
     </Stack>
   );
 }
