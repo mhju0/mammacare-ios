@@ -1,0 +1,25 @@
+export const CATALOG: { id: string; group: string | null }[] = [
+  // high-risk (big-9 expansion + KR additions)
+  { id: 'egg', group: 'egg' }, { id: 'milk', group: 'milk' }, { id: 'yogurt', group: 'milk' },
+  { id: 'cheese', group: 'milk' }, { id: 'wheat', group: 'wheat' }, { id: 'peanut', group: 'peanut' },
+  { id: 'soy', group: 'soy' }, { id: 'tofu', group: 'soy' }, { id: 'sesame', group: 'sesame' },
+  { id: 'shrimp', group: 'shellfish' }, { id: 'crab', group: 'shellfish' },
+  { id: 'whitefish', group: 'fish' }, { id: 'salmon', group: 'fish' }, { id: 'mackerel', group: 'fish' },
+  { id: 'almond', group: 'tree_nut' }, { id: 'walnut', group: 'tree_nut' },
+  { id: 'cashew', group: 'tree_nut' }, { id: 'pinenut', group: 'tree_nut' },
+  { id: 'buckwheat', group: 'buckwheat' },
+  // everyday first foods
+  { id: 'rice', group: null }, { id: 'oat', group: null }, { id: 'barley', group: null },
+  { id: 'corn', group: null }, { id: 'sweetpotato', group: null }, { id: 'potato', group: null },
+  { id: 'pumpkin', group: null }, { id: 'zucchini', group: null }, { id: 'carrot', group: null },
+  { id: 'broccoli', group: null }, { id: 'cauliflower', group: null }, { id: 'cabbage', group: null },
+  { id: 'spinach', group: null }, { id: 'cucumber', group: null }, { id: 'pea', group: null },
+  { id: 'greenbean', group: null }, { id: 'onion', group: null }, { id: 'tomato', group: null },
+  { id: 'mushroom', group: null }, { id: 'seaweed', group: null }, { id: 'laver', group: null },
+  { id: 'apple', group: null }, { id: 'pear', group: null }, { id: 'banana', group: null },
+  { id: 'avocado', group: null }, { id: 'blueberry', group: null }, { id: 'strawberry', group: null },
+  { id: 'peach', group: null }, { id: 'plum', group: null }, { id: 'mango', group: null },
+  { id: 'watermelon', group: null }, { id: 'melon', group: null }, { id: 'grape', group: null },
+  { id: 'persimmon', group: null }, { id: 'beef', group: null }, { id: 'chicken', group: null },
+  { id: 'pork', group: null },
+];

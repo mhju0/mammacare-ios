@@ -1,0 +1,100 @@
+{
+  "appName": "알레르기 트래커",
+  "status": { "untried": "안 먹어봄", "testing": "테스트 중", "safe": "안전", "reacted": "반응" },
+  "home": {
+    "title": "알레르기 트래커",
+    "tryNewFood": "새 재료 시작하기",
+    "activeTrial": "테스트 중인 재료",
+    "dayOf": "{{total}}일 중 {{day}}일째",
+    "readyToConfirm": "관찰 기간 종료 — 어땠나요?",
+    "markSafe": "안전으로 표시",
+    "logReaction": "반응 기록",
+    "allFoods": "전체 재료",
+    "empty": "아직 테스트 기록이 없어요. “새 재료 시작하기”를 눌러보세요."
+  },
+  "setup": {
+    "title": "환영해요",
+    "intro": "재료를 하나씩 시도하며 알레르기 반응을 빠르게 발견하세요.",
+    "babyName": "아기 이름",
+    "birthdate": "생년월일",
+    "start": "시작하기",
+    "disclaimer": "이 앱은 기록 보조 도구이며 의학적 조언이 아닙니다. 알레르기는 반드시 소아과 의사와 상의하세요."
+  },
+  "foods": {
+    "title": "재료",
+    "search": "재료 검색…",
+    "add": "추가",
+    "addPlaceholder": "직접 재료 추가…",
+    "highRisk": "고위험"
+  },
+  "food": {
+    "startTrial": "{{days}}일 테스트 시작",
+    "retest": "재테스트 ({{days}}일)",
+    "cancelTrial": "테스트 취소",
+    "history": "기록",
+    "noHistory": "아직 시도하지 않았어요.",
+    "trialBlocked": "다른 재료가 아직 관찰 기간 중이에요. 한 번에 한 가지 재료만 테스트하세요.",
+    "startedOn": "{{date}} 시작",
+    "outcome": { "safe": "안전 확인", "reacted": "반응 발생", "cancelled": "취소됨" }
+  },
+  "reaction": {
+    "title": "반응 기록",
+    "symptoms": "증상",
+    "severity": "심각도",
+    "when": "발생 시각",
+    "note": "메모 (선택)",
+    "save": "반응 저장",
+    "emergency": "호흡 곤란이나 심한 부종이 있다면 지금 바로 119에 연락하세요.",
+    "symptom": {
+      "hives": "두드러기", "rash": "발진", "vomiting": "구토", "diarrhea": "설사",
+      "swelling": "얼굴 부종", "breathing": "호흡 곤란", "other": "기타"
+    },
+    "severityLevel": { "mild": "가벼움", "moderate": "중간", "severe": "심각" }
+  },
+  "settings": {
+    "title": "설정",
+    "babySection": "아기",
+    "window": "관찰 기간 (일)",
+    "language": "언어",
+    "languageSystem": "시스템 설정",
+    "exportSection": "내보내기",
+    "exportPdf": "진료용 리포트 (PDF)",
+    "exportJson": "데이터 백업 (JSON)",
+    "privacy": "아기의 데이터는 이 기기 밖으로 나가지 않습니다.",
+    "disclaimer": "이 앱은 기록 보조 도구이며 의학적 조언이 아닙니다.",
+    "save": "저장"
+  },
+  "notif": {
+    "checkinTitle": "{{day}}일째: {{food}}",
+    "checkinBody": "{{food}} 먹인 후 증상은 없었나요?",
+    "windowEndTitle": "{{food}}: 관찰 기간 종료",
+    "windowEndBody": "반응이 없었다면 앱에서 {{food}}을(를) 안전으로 표시하세요."
+  },
+  "report": {
+    "title": "이유식 알레르기 기록",
+    "generated": "생성일 {{date}}",
+    "babyLine": "{{name}} · {{birthdate}} 출생",
+    "foodsTried": "시도한 재료",
+    "reactionsSection": "반응 기록",
+    "none": "없음",
+    "colFood": "재료", "colStatus": "상태", "colLastTried": "마지막 시도"
+  },
+  "common": { "cancel": "취소", "ok": "확인", "notNow": "나중에" },
+  "foodName": {
+    "egg": "달걀", "milk": "우유", "wheat": "밀", "peanut": "땅콩", "soy": "대두",
+    "sesame": "참깨", "shrimp": "새우", "crab": "게", "whitefish": "흰살 생선",
+    "salmon": "연어", "mackerel": "고등어", "almond": "아몬드", "walnut": "호두",
+    "cashew": "캐슈넛", "pinenut": "잣", "buckwheat": "메밀", "tofu": "두부",
+    "yogurt": "요거트", "cheese": "치즈",
+    "rice": "쌀", "oat": "귀리", "barley": "보리", "corn": "옥수수",
+    "sweetpotato": "고구마", "potato": "감자", "pumpkin": "단호박",
+    "zucchini": "애호박", "carrot": "당근", "broccoli": "브로콜리",
+    "cauliflower": "콜리플라워", "cabbage": "양배추", "spinach": "시금치",
+    "cucumber": "오이", "pea": "완두콩", "greenbean": "그린빈", "onion": "양파",
+    "tomato": "토마토", "mushroom": "버섯", "seaweed": "미역", "laver": "김",
+    "apple": "사과", "pear": "배", "banana": "바나나", "avocado": "아보카도",
+    "blueberry": "블루베리", "strawberry": "딸기", "peach": "복숭아", "plum": "자두",
+    "mango": "망고", "watermelon": "수박", "melon": "멜론", "grape": "포도",
+    "persimmon": "감", "beef": "소고기", "chicken": "닭고기", "pork": "돼지고기"
+  }
+}
