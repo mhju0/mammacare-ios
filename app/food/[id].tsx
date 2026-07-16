@@ -3,12 +3,13 @@ import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
 import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useBaby, useFoodsWithStatus, useReactions } from '../../src/data/queries';
+import { useBaby, useCheckins, useFoodsWithStatus, useReactions } from '../../src/data/queries';
 import { cancelTrial, confirmSafe, startTrial } from '../../src/data/mutations';
 import { ensurePermission } from '../../src/services/notify';
 import { foodLabel } from '../../src/i18n';
 import { isWindowElapsed, MS_PER_DAY } from '../../src/domain/status';
 import { Button } from '../../src/ui/Button';
+import { CheckinPill } from '../../src/ui/CheckinPill';
 import { colors, statusIcon } from '../../src/ui/tokens';
 
 const eyebrowStyle = { fontSize: 10, fontWeight: '700' as const, letterSpacing: 2.2, color: colors.muted, paddingBottom: 12 };
@@ -21,6 +22,7 @@ export default function FoodDetail() {
   const baby = useBaby();
   const foods = useFoodsWithStatus();
   const reactions = useReactions();
+  const checkins = useCheckins();
   const starting = useRef(false);
   const [, setTick] = useState(0);
   useFocusEffect(useCallback(() => setTick((x) => x + 1), []));
@@ -108,6 +110,7 @@ export default function FoodDetail() {
             variant="secondary"
             onPress={() => router.push({ pathname: '/log-reaction', params: { foodId: food.id } })}
           />
+          <CheckinPill foodId={food.id} trialId={activeHere.id} />
           <Button label={t('food.cancelTrial')} variant="danger"
             onPress={() => cancelTrial(activeHere.id, new Date())} />
         </View>
@@ -157,12 +160,27 @@ export default function FoodDetail() {
                   <Text style={{ fontSize: 12, color: colors.muted, marginTop: 2 }}>
                     {t('food.startedOn', { date: tr.startedAt.toLocaleDateString('ko-KR') })}
                   </Text>
-                  {reactions.filter((r) => r.trialId === tr.id).map((r) => (
-                    <Text key={r.id} style={{ fontSize: 12, color: colors.red, marginTop: 2 }}>
-                      {t(`reaction.severityLevel.${r.severity}`)} · {r.symptoms.map((s) => t(`reaction.symptom.${s}`)).join(', ')}
-                      {r.note ? ` — ${r.note}` : ''}
-                    </Text>
-                  ))}
+                  {[
+                    ...reactions.filter((r) => r.trialId === tr.id).map((r) => ({ kind: 'reaction' as const, at: r.occurredAt, r })),
+                    ...checkins.filter((c) => c.trialId === tr.id).map((c) => ({ kind: 'checkin' as const, at: c.occurredAt, c })),
+                  ]
+                    .sort((a, b) => b.at.getTime() - a.at.getTime())
+                    .map((ev) => ev.kind === 'reaction' ? (
+                      <Text key={`r-${ev.r.id}`} style={{ fontSize: 12, color: colors.red, marginTop: 2 }}>
+                        {t(`reaction.severityLevel.${ev.r.severity}`)} · {ev.r.symptoms.map((s) => t(`reaction.symptom.${s}`)).join(', ')}
+                        {ev.r.note ? ` — ${ev.r.note}` : ''}
+                      </Text>
+                    ) : (
+                      <View key={`c-${ev.c.id}`} style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 6, marginTop: 4 }}>
+                        <View style={{ width: 6, height: 6, borderRadius: 999, backgroundColor: colors.green, marginTop: 5 }} />
+                        <View>
+                          <Text style={{ fontSize: 12, fontWeight: '700', color: colors.green }}>{t('food.checkinClear')}</Text>
+                          <Text style={{ fontSize: 11, color: colors.muted, marginTop: 1 }}>
+                            {ev.c.occurredAt.toLocaleDateString('ko-KR')} {ev.c.occurredAt.toLocaleTimeString('ko-KR', { hour: 'numeric', minute: '2-digit' })}
+                          </Text>
+                        </View>
+                      </View>
+                    ))}
                 </View>
               );
             })}

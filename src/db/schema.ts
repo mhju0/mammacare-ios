@@ -32,7 +32,15 @@ export const reaction = sqliteTable('reaction', {
   note: text('note'),
 });
 
+export const checkin = sqliteTable('checkin', {
+  id: text('id').primaryKey(),
+  trialId: text('trial_id').notNull().references(() => trial.id),
+  occurredAt: integer('occurred_at', { mode: 'timestamp' }).notNull(),
+  note: text('note'),
+});
+
 export type Baby = typeof baby.$inferSelect;
 export type Food = typeof food.$inferSelect;
 export type Trial = typeof trial.$inferSelect;
 export type Reaction = typeof reaction.$inferSelect;
+export type Checkin = typeof checkin.$inferSelect;

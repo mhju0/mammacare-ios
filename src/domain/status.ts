@@ -17,6 +17,10 @@ export function isWindowElapsed(t: TrialLike, now: Date): boolean {
   return now.getTime() >= windowEnd(t).getTime();
 }
 
+export function isSameLocalDay(a: Date, b: Date): boolean {
+  return a.toDateString() === b.toDateString();
+}
+
 export function latestTrial<T extends TrialLike>(trials: T[]): T | undefined {
   return [...trials]
     .filter((t) => t.outcome !== 'cancelled')

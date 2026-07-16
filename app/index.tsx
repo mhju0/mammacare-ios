@@ -9,6 +9,7 @@ import { confirmSafe, saveBaby } from '../src/data/mutations';
 import { foodLabel } from '../src/i18n';
 import { isWindowElapsed, MS_PER_DAY, type FoodStatus } from '../src/domain/status';
 import { Button } from '../src/ui/Button';
+import { CheckinPill } from '../src/ui/CheckinPill';
 import { colors } from '../src/ui/tokens';
 
 const eyebrowStyle = { fontSize: 10, fontWeight: '700' as const, letterSpacing: 2.2, color: colors.muted, paddingBottom: 12 };
@@ -95,7 +96,7 @@ function Dashboard() {
           <View style={{ height: 3, backgroundColor: colors.hairline, borderRadius: 2, marginTop: 13, marginBottom: 20, overflow: 'hidden' }}>
             <View style={{ height: 3, width: `${fraction * 100}%`, backgroundColor: colors.amber }} />
           </View>
-          {elapsed && (
+          {elapsed ? (
             <View style={{ gap: 10, marginBottom: 20 }}>
               <Button label={t('home.markSafe')} onPress={() => confirmSafe(latest.id, new Date())} />
               <Button
@@ -103,6 +104,10 @@ function Dashboard() {
                 variant="secondary"
                 onPress={() => router.push({ pathname: '/log-reaction', params: { foodId: active.food.id } })}
               />
+            </View>
+          ) : (
+            <View style={{ marginBottom: 20 }}>
+              <CheckinPill foodId={active.food.id} trialId={latest.id} />
             </View>
           )}
         </View>

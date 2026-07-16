@@ -1,6 +1,6 @@
 import { eq, isNull } from 'drizzle-orm';
 import { db } from '../db/client';
-import { baby, food, reaction, trial, type Trial } from '../db/schema';
+import { baby, checkin, food, reaction, trial, type Trial } from '../db/schema';
 import { decideStartTrial, isWindowElapsed, latestTrial } from '../domain/status';
 import { computeTrialNotifications } from '../domain/notifications';
 import { cancelTrialNotifications, scheduleTrialNotifications } from '../services/notify';
@@ -45,6 +45,16 @@ export async function logReaction(
     await db.update(trial).set({ outcome: 'reacted', endedAt: now }).where(eq(trial.id, latest.id));
   }
   if (latest.outcome === null) await cancelTrialNotifications(latest.id);
+  return { ok: true };
+}
+
+export async function logCheckin(
+  foodId: string, now: Date,
+): Promise<{ ok: true } | { ok: false; reason: 'no_active_trial' }> {
+  const trials = await db.select().from(trial).where(eq(trial.foodId, foodId));
+  const latest = latestTrial(trials);
+  if (!latest || latest.outcome !== null) return { ok: false, reason: 'no_active_trial' };
+  await db.insert(checkin).values({ id: newId(), trialId: latest.id, occurredAt: now, note: null });
   return { ok: true };
 }
 

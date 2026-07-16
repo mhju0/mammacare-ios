@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { db } from '../db/client';
-import { baby, food, reaction, trial, type Baby, type Food, type Reaction, type Trial } from '../db/schema';
+import { baby, checkin, food, reaction, trial, type Baby, type Checkin, type Food, type Reaction, type Trial } from '../db/schema';
 import { deriveStatus, latestTrial, type FoodStatus } from '../domain/status';
 
 export function useBaby(): Baby | undefined {
@@ -37,5 +37,10 @@ export function useFoodsWithStatus(): FoodWithStatus[] {
 
 export function useReactions(): Reaction[] {
   const { data } = useLiveQuery(db.select().from(reaction));
+  return data ?? [];
+}
+
+export function useCheckins(): Checkin[] {
+  const { data } = useLiveQuery(db.select().from(checkin));
   return data ?? [];
 }
