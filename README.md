@@ -1,40 +1,132 @@
-# Allergy Tracker
+<div align="center">
 
-Introduce your baby's foods one at a time, watch the trial window, and the
-food list becomes a traffic light you can trust.
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/logo-dark.svg">
+  <img src="docs/logo-light.svg" alt="알레르기 트래커 — Allergy Tracker" width="440">
+</picture>
 
-**Native iOS · 100% on-device · no account, no server — your baby's data
-never leaves the phone.**
+**Introduce your baby's foods one at a time — and the food list becomes a traffic light you can trust.**
 
-## How it works
-1. Pick a food (56 built-in — big-9 allergens flagged high-risk — or add your own).
-2. Start a trial. The app schedules gentle check-in reminders through the
-   watch window (default 3 days). One food at a time — that's the point.
-3. During a trial, one tap logs 이상 없음 — an affirmative "no reaction
-   observed" check-in — without ending the trial.
-4. Log a reaction (symptoms, severity, notes) → food turns **red**.
-   Window passes clean → **green**. The Foods list is the answer to
-   "can my baby eat this?"
-5. The calendar's month view tints each day inside a trial window and marks
-   reaction/check-in dots, with a per-day event list below.
-6. One tap exports a doctor-ready PDF report or a JSON backup.
+Native iOS · Korean-only UI · 100% on-device — no account, no server, no network.
 
-## Stack
-Expo (React Native, TypeScript) · Expo Router · expo-sqlite + Drizzle ORM
-(on-device relational DB, statuses derived at read time, never stored) ·
-expo-notifications (all local) · i18next (한국어 전용 UI) · Jest ·
-hand-rolled editorial UI system (paper/ink/persimmon tokens).
+![Expo SDK 57](https://img.shields.io/badge/Expo-SDK%2057-000020?logo=expo&logoColor=white)
+![React Native 0.86](https://img.shields.io/badge/React%20Native-0.86-61DAFB?logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
+![SQLite + Drizzle](https://img.shields.io/badge/SQLite-Drizzle%20ORM-C5F74F?logo=drizzle&logoColor=black)
+![Tests](https://img.shields.io/badge/tests-42%20passing-2E7D4F)
+![License](https://img.shields.io/badge/license-MIT-8B8578)
 
-## Run
-```bash
-npm install
-npx expo run:ios   # dev build on the iOS simulator
-npx jest           # unit tests (status derivation, scheduling, export)
+</div>
+
+---
+
+| Home | Foods | Food detail | Calendar | Log a reaction |
+|:---:|:---:|:---:|:---:|:---:|
+| ![Home — active trial dashboard](docs/screenshots/home.png) | ![Foods — searchable catalog with statuses](docs/screenshots/foods.png) | ![Food detail — reaction history timeline](docs/screenshots/detail.png) | ![Calendar — tinted trial windows and event dots](docs/screenshots/calendar.png) | ![Reaction logging — symptoms and severity](docs/screenshots/reaction.png) |
+
+## Why
+
+Pediatric weaning guidance (질병관리청, 대한소아청소년과학회, NHS, CDC) agrees on
+one thing: introduce **one new food at a time** and watch for reactions —
+which can appear up to **2–3 days later** — before moving on. In practice
+that means remembering what was fed when, what happened, and what's still
+untested, across months. This app is that memory.
+
+## Features
+
+- **One food at a time, enforced.** Starting a new trial is blocked while
+  another is under observation — the single rule that makes every other
+  record trustworthy.
+- **Fixed 3-day observation window** with gentle local check-in
+  notifications (daytime, 09:00) and a window-end reminder.
+- **Traffic-light statuses** — 안전 (green) / 테스트 중 (amber) /
+  반응 (red) / 안 먹어봄 — always **derived from the trial history at read
+  time, never stored**, so the list can't drift out of sync.
+- **이상 없음 one-tap check-ins** log "no reaction observed" during a trial
+  without ending it — affirmative evidence, not just absence of alarms.
+- **Delayed reactions handled correctly**: logging a reaction on a food
+  already marked safe flips it to red, matching how real allergies surface.
+- **Calendar history** — month view tints each day inside a trial window
+  and dots reaction/check-in days, with a per-day event list.
+- **Curated catalog** of 56 Korean weaning foods with the big-9 allergen
+  groups flagged 고위험, plus free-text custom foods.
+- **Doctor-ready PDF report** (foods tried, statuses, reaction log) and
+  one-tap JSON backup — both generated on device and handed to the iOS
+  share sheet.
+
+## How a trial works
+
+```
+새 재료 시작 ──▶ 테스트 중 (3일)
+                  │  이상 없음 check-ins (observations — never change status)
+                  ├─ 반응 기록          ──▶ 반응 (red)   · notifications cancelled
+                  ├─ 안전으로 표시       ──▶ 안전 (green) · window must have elapsed
+                  ├─ 다음 재료 시작      ──▶ 안전 (green) · implicit-safe autoclose
+                  └─ 테스트 취소        ──▶ 기록만 남음
+지연 반응: 안전이던 재료에 반응 기록 ──▶ 반응 (red)
 ```
 
-## History
-v1 (MammaCare — Capacitor + FastAPI/Postgres) is archived at tag
-`archive/v1-capacitor`. v2 is a ground-up rebuild; design spec in
-`docs/superpowers/specs/`.
+## Architecture
 
-*Tracking aid, not medical advice. Always consult your pediatrician.*
+```
+app/            Expo Router screens (stack-only, typed routes)
+src/domain/     Pure logic — status derivation, trial rules, notification
+                schedule, calendar math. No I/O, fully unit-tested (TDD).
+src/data/       Mutations & live queries (drizzle + useLiveQuery)
+src/db/         Schema, generated migrations, seed catalog, demo fixture
+src/services/   Local notifications, PDF/JSON export builders
+src/ui/         Design tokens (single source of color) + shared components
+```
+
+- **Status is a function, not a column.** `deriveStatus(trials, now)` is an
+  exhaustive switch over trial history; there is no status field to corrupt.
+- **Domain core is pure TypeScript** — 42 tests across 7 suites cover
+  status rules, the start-trial decision (including implicit-safe
+  autoclose), notification scheduling, calendar date math, export builders,
+  and the demo fixture's invariants.
+- **Editorial UI system** — paper/ink/persimmon token palette, hairline
+  lists, big-type headlines; status colors always ship with an icon + label,
+  never color alone.
+- **Korean-only by design** — every user-visible string flows through
+  i18next with `ko` as the sole locale; dates are pinned to `ko-KR`.
+
+## Getting started
+
+```bash
+npm install
+npx expo run:ios      # dev build on the iOS simulator
+npx jest              # unit tests
+npx tsc --noEmit      # typecheck
+```
+
+**Demo mode** — boot a fresh install pre-filled with 46 days of realistic
+history (16 trials, reactions, check-ins, an active trial on day 2):
+
+```bash
+EXPO_PUBLIC_DEMO=1 npx expo run:ios
+```
+
+The demo seed only fires when the database has no baby profile; real
+installs are unaffected.
+
+## Privacy
+
+All data lives in a local SQLite file on the phone. There is no network
+code in the app — nothing is collected, synced, or sent anywhere. Export
+is explicit: a PDF or JSON file handed to the iOS share sheet.
+
+## History
+
+v1 (MammaCare — Capacitor + FastAPI + Postgres) is archived at tag
+[`archive/v1-capacitor`](../../tree/archive/v1-capacitor). v2 is a
+ground-up rebuild; the design spec and build plan live in
+[`docs/superpowers/`](docs/superpowers/).
+
+## License
+
+[MIT](LICENSE) © 2026 Michael Ju
+
+---
+
+*이 앱은 기록 보조 도구이며 의학적 조언이 아닙니다 — a tracking aid, not
+medical advice. Always consult your pediatrician about allergies.*
