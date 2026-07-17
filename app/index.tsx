@@ -134,12 +134,30 @@ function Dashboard() {
         ))}
       </View>
 
-      <View style={{ flexDirection: 'row', gap: 16, marginTop: 'auto', paddingTop: 14, paddingBottom: insets.bottom > 0 ? insets.bottom : 12 }}>
-        <Pressable accessibilityRole="button" onPress={() => router.push('/calendar')}>
-          <Text style={{ color: colors.muted, fontSize: 12.5 }}>{t('home.calendar')} →</Text>
+      <View style={{ marginTop: 'auto', paddingTop: 24, paddingBottom: insets.bottom > 0 ? insets.bottom : 12 }}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={t('home.calendar')}
+          onPress={() => router.push('/calendar')}
+          style={{
+            flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+            paddingVertical: 15, borderTopWidth: 1, borderColor: colors.hairline,
+          }}
+        >
+          <Text style={{ fontSize: 15, fontWeight: '700', color: colors.ink }}>{t('home.calendar')}</Text>
+          <Text style={{ fontSize: 15, color: colors.muted }}>→</Text>
         </Pressable>
-        <Pressable accessibilityRole="button" onPress={() => router.push('/settings')}>
-          <Text style={{ color: colors.muted, fontSize: 12.5 }}>{t('settings.title')} →</Text>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={t('settings.title')}
+          onPress={() => router.push('/settings')}
+          style={{
+            flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+            paddingVertical: 15, borderTopWidth: 1, borderColor: colors.hairline,
+          }}
+        >
+          <Text style={{ fontSize: 15, fontWeight: '700', color: colors.ink }}>{t('settings.title')}</Text>
+          <Text style={{ fontSize: 15, color: colors.muted }}>→</Text>
         </Pressable>
       </View>
     </ScrollView>

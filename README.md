@@ -81,13 +81,13 @@ and scope decisions — lives at [docs/design-spec.md](docs/design-spec.md).
 ## How a trial works
 
 ```
-새 재료 시작 ──▶ 테스트 중 (3일)
-                  │  이상 없음 check-ins (observations — never change status)
-                  ├─ 반응 기록          ──▶ 반응 (red)   · notifications cancelled
-                  ├─ 안전으로 표시       ──▶ 안전 (green) · window must have elapsed
-                  ├─ 다음 재료 시작      ──▶ 안전 (green) · implicit-safe autoclose
-                  └─ 테스트 취소        ──▶ 기록만 남음
-지연 반응: 안전이던 재료에 반응 기록 ──▶ 반응 (red)
+start a food ──▶ testing (3-day window)
+                   │  "no reaction" check-ins (observations — never change status)
+                   ├─ log a reaction   ──▶ reacted (red)  · notifications cancelled
+                   ├─ mark as safe     ──▶ safe (green)   · window must have elapsed
+                   ├─ start next food  ──▶ safe (green)   · autoclose, window elapsed
+                   └─ cancel the trial ──▶ record kept, food reverts to prior status
+delayed reaction: log a reaction on an already-safe food ──▶ reacted (red)
 ```
 
 ## Tech stack
