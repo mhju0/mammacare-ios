@@ -36,7 +36,8 @@
       ],
       "expo-sqlite",
       "expo-sharing",
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      "./plugins/with-no-push-entitlement.js"
     ],
     "experiments": {
       "reactCompiler": true,
