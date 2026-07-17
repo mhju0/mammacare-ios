@@ -13,7 +13,7 @@ Native iOS · Korean-only UI · 100% on-device — no account, no server, no net
 ![React Native 0.86](https://img.shields.io/badge/React%20Native-0.86-61DAFB?logo=react&logoColor=black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
 ![SQLite + Drizzle](https://img.shields.io/badge/SQLite-Drizzle%20ORM-C5F74F?logo=drizzle&logoColor=black)
-![Tests](https://img.shields.io/badge/tests-42%20passing-2E7D4F)
+[![CI](https://github.com/mhju0/allergy-tracker/actions/workflows/ci.yml/badge.svg)](https://github.com/mhju0/allergy-tracker/actions/workflows/ci.yml)
 ![License](https://img.shields.io/badge/license-MIT-8B8578)
 
 </div>
