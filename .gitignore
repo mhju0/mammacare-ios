@@ -19,3 +19,4 @@ expo-env.d.ts
 CLAUDE.md
 docs/agents/
 .claude/
+.superpowers/
