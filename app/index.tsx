@@ -12,7 +12,7 @@ import { Button } from '../src/ui/Button';
 import { CheckinPill } from '../src/ui/CheckinPill';
 import { colors, layout } from '../src/ui/tokens';
 
-const eyebrowStyle = { fontSize: 10, fontWeight: '700' as const, letterSpacing: 2.2, color: colors.muted, paddingBottom: 12 };
+const eyebrowStyle = { fontSize: 10, fontWeight: '700' as const, letterSpacing: 2.2, color: colors.muted, paddingBottom: 12, paddingLeft: layout.rowInset };
 const labelStyle = { fontSize: 11, fontWeight: '800' as const, letterSpacing: 1.5, color: colors.muted, marginTop: 18 };
 const underlineInput = { borderBottomWidth: 2, borderColor: colors.ink, paddingVertical: 8, fontSize: 16, color: colors.ink };
 
@@ -90,7 +90,7 @@ function Dashboard() {
           <Text style={{ fontSize: 58, fontWeight: '900', color: colors.ink, letterSpacing: -1, lineHeight: 60 }}>
             {foodLabel(active.food)}
           </Text>
-          <Text style={{ fontSize: 13, fontWeight: '700', color: colors.amber, marginTop: 9 }}>
+          <Text style={{ fontSize: 13, fontWeight: '700', color: colors.amber, marginTop: 9, paddingLeft: layout.rowInset }}>
             {elapsed ? t('home.readyToConfirm') : `${t('status.testing')} · ${t('home.dayOf', { day, total: latest.windowDays })}`}
           </Text>
           <View style={{ height: 3, backgroundColor: colors.hairline, borderRadius: 2, marginTop: 13, marginBottom: 20, overflow: 'hidden' }}>
