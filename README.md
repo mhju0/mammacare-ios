@@ -72,7 +72,7 @@ and scope decisions — lives at [docs/design-spec.md](docs/design-spec.md).
   already marked safe flips it to red, matching how real allergies surface.
 - **Calendar history** — month view tints each day inside a trial window
   and dots reaction/check-in days, with a per-day event list.
-- **Curated catalog** of 56 Korean weaning foods with the big-9 allergen
+- **Curated catalog** of 55 Korean weaning foods with the big-9 allergen
   groups flagged 고위험, plus free-text custom foods.
 - **Doctor-ready PDF report** (foods tried, statuses, reaction log) and
   one-tap JSON backup — both generated on device and handed to the iOS

@@ -14,7 +14,7 @@ export const CATALOG: { id: string; group: string | null }[] = [
   { id: 'pumpkin', group: null }, { id: 'zucchini', group: null }, { id: 'carrot', group: null },
   { id: 'broccoli', group: null }, { id: 'cauliflower', group: null }, { id: 'cabbage', group: null },
   { id: 'spinach', group: null }, { id: 'cucumber', group: null }, { id: 'pea', group: null },
-  { id: 'greenbean', group: null }, { id: 'onion', group: null }, { id: 'tomato', group: null },
+  { id: 'onion', group: null }, { id: 'tomato', group: null },
   { id: 'mushroom', group: null }, { id: 'seaweed', group: null }, { id: 'laver', group: null },
   { id: 'apple', group: null }, { id: 'pear', group: null }, { id: 'banana', group: null },
   { id: 'avocado', group: null }, { id: 'blueberry', group: null }, { id: 'strawberry', group: null },
