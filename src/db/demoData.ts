@@ -1,7 +1,7 @@
 import type { Baby, Checkin, Food, Reaction, Trial } from './schema';
 
-// Demo fixture: ~45 days of realistic weaning history so the app looks
-// lived-in for portfolio demos. Inserted only when EXPO_PUBLIC_DEMO=1 and
+// Demo fixture: ~30 days of realistic weaning history so the app looks
+// lived-in for demos. Inserted only when EXPO_PUBLIC_DEMO=1 and
 // the DB has no baby row (see seed.ts). Deterministic 'demo-' ids.
 //
 // Realism rules mirrored from the app's own flows:
@@ -10,6 +10,8 @@ import type { Baby, Checkin, Food, Reaction, Trial } from './schema';
 // - reacted trials end at the reaction moment.
 // - one active trial at the end (tofu, day 2 of 3) so Home shows the
 //   dashboard with the 이상 없음 button live.
+// - shape per owner spec 2026-07-23: two reacted (밀/달걀), everything else
+//   safe (no cancelled trials), classic first-foods order.
 
 type Spec = {
   foodId: string;
@@ -27,27 +29,22 @@ type Spec = {
 const WINDOW = 3;
 
 const PLAN: Spec[] = [
-  { foodId: 'rice', start: 45, outcome: 'safe' },
-  { foodId: 'sweetpotato', start: 42, outcome: 'safe', checkins: [41, 40] },
-  { foodId: 'pumpkin', start: 39, outcome: 'safe', checkins: [38] },
-  { foodId: 'potato', start: 35, outcome: 'safe', checkins: [34, 33] },
-  { foodId: 'carrot', start: 32, outcome: 'safe', checkins: [31] },
-  { foodId: 'zucchini', start: 29, outcome: 'safe', checkins: [28, 27] },
-  { foodId: 'broccoli', start: 26, outcome: 'safe', checkins: [25] },
-  { foodId: 'apple', start: 22, outcome: 'safe', checkins: [21, 20] },
-  { foodId: 'pear', start: 19, outcome: 'safe', checkins: [18] },
-  { foodId: 'banana', start: 16, outcome: 'safe', checkins: [15, 14] },
+  { foodId: 'rice', start: 31, outcome: 'safe' },
+  { foodId: 'sweetpotato', start: 28, outcome: 'safe', checkins: [27, 26] },
+  { foodId: 'pumpkin', start: 25, outcome: 'safe', checkins: [24] },
+  { foodId: 'potato', start: 22, outcome: 'safe', checkins: [21, 20] },
+  { foodId: 'carrot', start: 19, outcome: 'safe', checkins: [18] },
+  { foodId: 'broccoli', start: 16, outcome: 'safe', checkins: [15, 14] },
   {
     foodId: 'wheat', start: 13, outcome: 'reacted',
     reaction: { daysAgo: 12, symptoms: ['diarrhea'], severity: 'mild', note: '묽은 변 두 번, 이틀 뒤 회복' },
   },
-  { foodId: 'beef', start: 11, outcome: 'safe', checkins: [10, 9] },
+  { foodId: 'banana', start: 11, outcome: 'safe', checkins: [10, 9] },
   {
     foodId: 'egg', start: 8, outcome: 'reacted', checkins: [8],
     reaction: { daysAgo: 7, symptoms: ['hives', 'swelling'], severity: 'moderate', note: '볼과 목에 두드러기, 1시간 후 가라앉음' },
   },
-  { foodId: 'whitefish', start: 6, outcome: 'cancelled' },
-  { foodId: 'chicken', start: 5, outcome: 'safe', checkins: [4, 3] },
+  { foodId: 'beef', start: 6, outcome: 'safe', checkins: [5, 4] },
   { foodId: 'tofu', start: 1, outcome: null, checkins: [1] },
 ];
 

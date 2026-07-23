@@ -4,9 +4,16 @@ const now = new Date(2026, 6, 17, 12, 0, 0);
 const d = buildDemoHistory(now);
 
 describe('buildDemoHistory', () => {
-  it('spans more than a month of history', () => {
+  it('spans about a month of history (owner spec 2026-07-23: ~30 days)', () => {
     const earliest = Math.min(...d.trials.map((t) => t.startedAt.getTime()));
-    expect(now.getTime() - earliest).toBeGreaterThan(35 * 86_400_000);
+    const span = now.getTime() - earliest;
+    expect(span).toBeGreaterThan(28 * 86_400_000);
+    expect(span).toBeLessThan(35 * 86_400_000);
+  });
+
+  it('has exactly two reacted trials and no cancelled ones (owner spec)', () => {
+    expect(d.trials.filter((t) => t.outcome === 'reacted')).toHaveLength(2);
+    expect(d.trials.filter((t) => t.outcome === 'cancelled')).toHaveLength(0);
   });
 
   it('has exactly one active trial and it is the most recent', () => {
@@ -57,10 +64,9 @@ describe('buildDemoHistory', () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
-  it('includes reacted, safe, and cancelled outcomes for a varied calendar', () => {
+  it('includes safe and reacted outcomes for a varied calendar', () => {
     const outcomes = new Set(d.trials.map((t) => t.outcome));
     expect(outcomes.has('safe')).toBe(true);
     expect(outcomes.has('reacted')).toBe(true);
-    expect(outcomes.has('cancelled')).toBe(true);
   });
 });
