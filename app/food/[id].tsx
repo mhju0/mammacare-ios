@@ -36,7 +36,8 @@ export default function FoodDetail() {
   const activeHere = latest && latest.outcome === null ? latest : undefined;
   const fg = colors.status[status].fg;
 
-  const onStart = () => startFlow(food);
+  // A started test lives on the home hero — land the user there, not here.
+  const onStart = () => startFlow(food, () => router.dismissAll());
 
   const testingElapsed = latest && status === 'testing' ? isWindowElapsed(latest, now) : false;
   const testingDay = latest && status === 'testing'

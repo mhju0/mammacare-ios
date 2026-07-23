@@ -63,8 +63,13 @@ function Dashboard() {
               />
             </View>
           ) : (
-            <View style={{ marginBottom: 10 }}>
+            <View style={{ gap: 10, marginBottom: 10 }}>
               <CheckinPill foodId={active.food.id} trialId={latest.id} />
+              <Button
+                label={t('home.logReaction')}
+                variant="secondary"
+                onPress={() => router.push({ pathname: '/log-reaction', params: { foodId: active.food.id } })}
+              />
             </View>
           )}
         </View>
