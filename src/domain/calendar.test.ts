@@ -75,6 +75,18 @@ describe('dayMark', () => {
     expect(mark).toEqual({ tint: null, dot: null });
   });
 
+  test('early-ended trial (reaction day 1) stops tinting at its actual end, not the scheduled window', () => {
+    const reacted = mk({ startedAt: D('2026-07-16T09:00:00'), windowDays: 3, outcome: 'reacted', endedAt: D('2026-07-16T14:00:00') });
+    expect(dayMark(D('2026-07-16T12:00:00'), [reacted], [], []).tint).toBe('amber'); // day it ran
+    expect(dayMark(D('2026-07-17T12:00:00'), [reacted], [], []).tint).toBe(null); // test already over
+  });
+
+  test('safe confirmed after the window elapsed does not stretch the tint past the scheduled end', () => {
+    const lateSafe = mk({ startedAt: D('2026-07-16T09:00:00'), windowDays: 3, outcome: 'safe', endedAt: D('2026-07-21T10:00:00') });
+    expect(dayMark(D('2026-07-19T12:00:00'), [lateSafe], [], []).tint).toBe('amber'); // scheduled end day
+    expect(dayMark(D('2026-07-20T12:00:00'), [lateSafe], [], []).tint).toBe(null); // between window end and confirm
+  });
+
   test('cancelled trial does not tint its window', () => {
     const cancelled = mk({ startedAt: D('2026-07-16T09:00:00'), windowDays: 3, outcome: 'cancelled' });
     const mark = dayMark(D('2026-07-17T12:00:00'), [cancelled], [], []);

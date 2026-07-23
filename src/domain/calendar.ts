@@ -20,7 +20,12 @@ function localDayStart(d: Date): number {
 
 function isInTrialWindow(date: Date, t: TrialLike): boolean {
   const day = localDayStart(date);
-  return day >= localDayStart(t.startedAt) && day <= localDayStart(windowEnd(t));
+  // Tint only days the test actually covered: an early end (reaction) stops
+  // the window, while a late safe-confirm never stretches past the scheduled
+  // end — so the bound is whichever of endedAt/windowEnd comes first.
+  const scheduled = windowEnd(t);
+  const end = t.endedAt && t.endedAt.getTime() < scheduled.getTime() ? t.endedAt : scheduled;
+  return day >= localDayStart(t.startedAt) && day <= localDayStart(end);
 }
 
 // Order a single day's calendar events chronologically. At the same instant a

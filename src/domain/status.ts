@@ -5,6 +5,7 @@ export type TrialLike = {
   startedAt: Date;
   windowDays: number;
   outcome: 'safe' | 'reacted' | 'cancelled' | null;
+  endedAt?: Date | null; // present on real Trial rows; calendar tinting clamps to it
 };
 
 export type FoodStatus = 'untried' | 'testing' | 'reacted' | 'safe';
