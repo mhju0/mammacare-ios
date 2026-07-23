@@ -1,3 +1,4 @@
+import { and, eq, notInArray } from 'drizzle-orm';
 import { db } from './client';
 import { baby, checkin, food, reaction, trial } from './schema';
 import { CATALOG } from './catalog';
@@ -5,7 +6,19 @@ import { buildDemoHistory } from './demoData';
 
 export async function seedIfEmpty(): Promise<void> {
   const existing = await db.select({ id: food.id }).from(food).limit(1);
-  if (existing.length > 0) return;
+  if (existing.length > 0) {
+    // Reconcile installs seeded by an older catalog: drop seeded foods that
+    // were since removed (they'd render as raw i18n keys), but never ones the
+    // user has trial history for — those keep a legacy name in ko.json.
+    await db.delete(food).where(
+      and(
+        eq(food.isCustom, false),
+        notInArray(food.id, CATALOG.map((c) => c.id)),
+        notInArray(food.id, db.select({ id: trial.foodId }).from(trial)),
+      ),
+    );
+    return;
+  }
   await db.insert(food).values(
     CATALOG.map((c) => ({
       id: c.id,
