@@ -87,9 +87,15 @@ function Dashboard() {
 
       {active && latest ? (
         <View>
-          <Text style={{ fontSize: 58, fontWeight: '900', color: colors.ink, letterSpacing: -1, lineHeight: 60 }}>
-            {foodLabel(active.food)}
-          </Text>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={foodLabel(active.food)}
+            onPress={() => router.push({ pathname: '/food/[id]', params: { id: active.food.id } })}
+          >
+            <Text style={{ fontSize: 58, fontWeight: '900', color: colors.ink, letterSpacing: -1, lineHeight: 60 }}>
+              {foodLabel(active.food)}
+            </Text>
+          </Pressable>
           <Text style={{ fontSize: 13, fontWeight: '700', color: colors.amber, marginTop: 9, paddingLeft: layout.rowInset }}>
             {elapsed ? t('home.readyToConfirm') : `${t('status.testing')} · ${t('home.dayOf', { day, total: latest.windowDays })}`}
           </Text>

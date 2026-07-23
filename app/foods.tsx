@@ -76,7 +76,12 @@ export default function Foods() {
       setNewName('');
       const id = await addCustomFood(name);
       setAddOpen(false);
-      router.push({ pathname: '/food/[id]', params: { id } });
+      if (pick === '1') {
+        // Keep the picker's promise: a custom food starts its test right away too.
+        await startFlow({ id, name, isCustom: true, allergenGroup: null }, () => router.back());
+      } else {
+        router.push({ pathname: '/food/[id]', params: { id } });
+      }
     } catch {
       Alert.alert(t('errors.generic'));
     } finally {
@@ -125,6 +130,12 @@ export default function Foods() {
           <Text style={{ fontSize: 13, fontWeight: '700', color: colors.ink }}>＋ {t('foods.customAdd')}</Text>
         </Pressable>
       </View>
+
+      {pick === '1' && (
+        <Text style={{ fontSize: 12, color: colors.muted, paddingTop: 8, paddingLeft: layout.rowInset }}>
+          {t('foods.pickHint')}
+        </Text>
+      )}
 
       {addOpen && (
         <View

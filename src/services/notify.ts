@@ -13,6 +13,10 @@ export function initNotificationHandler(): void {
   });
 }
 
+export async function isPermissionGranted(): Promise<boolean> {
+  return (await Notifications.getPermissionsAsync()).granted;
+}
+
 export async function ensurePermission(): Promise<boolean> {
   const current = await Notifications.getPermissionsAsync();
   if (current.granted) return true;

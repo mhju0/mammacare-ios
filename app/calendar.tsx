@@ -31,10 +31,19 @@ export default function Calendar() {
   });
   const [selectedDate, setSelectedDate] = useState(() => new Date());
 
-  const goPrevMonth = () =>
-    setDisplay(({ year, month0 }) => (month0 === 0 ? { year: year - 1, month0: 11 } : { year, month0: month0 - 1 }));
-  const goNextMonth = () =>
-    setDisplay(({ year, month0 }) => (month0 === 11 ? { year: year + 1, month0: 0 } : { year, month0: month0 + 1 }));
+  // Month nav moves the selection to the 1st of the shown month so the day
+  // list below never silently shows a day from a month that's off-screen.
+  const goMonth = (delta: -1 | 1) => {
+    const { year, month0 } = display;
+    const next = new Date(year, month0 + delta, 1);
+    setDisplay({ year: next.getFullYear(), month0: next.getMonth() });
+    setSelectedDate(next);
+  };
+  const goToday = () => {
+    const d = new Date();
+    setDisplay({ year: d.getFullYear(), month0: d.getMonth() });
+    setSelectedDate(d);
+  };
 
   const cells = useMemo(() => monthMatrix(display.year, display.month0), [display.year, display.month0]);
   const weeks = useMemo(() => {
@@ -108,14 +117,16 @@ export default function Calendar() {
       </Pressable>
 
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-        <Text style={{ fontSize: 30, fontWeight: '900', color: colors.ink, letterSpacing: -0.3, paddingLeft: layout.rowInset }}>
-          {t('calendar.monthTitle', { year: display.year, month: display.month0 + 1 })}
-        </Text>
+        <Pressable accessibilityRole="button" accessibilityLabel={t('calendar.today')} onPress={goToday}>
+          <Text style={{ fontSize: 30, fontWeight: '900', color: colors.ink, letterSpacing: -0.3, paddingLeft: layout.rowInset }}>
+            {t('calendar.monthTitle', { year: display.year, month: display.month0 + 1 })}
+          </Text>
+        </Pressable>
         <View style={{ flexDirection: 'row' }}>
-          <Pressable accessibilityRole="button" onPress={goPrevMonth} style={navBtnStyle}>
+          <Pressable accessibilityRole="button" onPress={() => goMonth(-1)} style={navBtnStyle}>
             <Text style={{ fontSize: 18, color: colors.muted }}>‹</Text>
           </Pressable>
-          <Pressable accessibilityRole="button" onPress={goNextMonth} style={navBtnStyle}>
+          <Pressable accessibilityRole="button" onPress={() => goMonth(1)} style={navBtnStyle}>
             <Text style={{ fontSize: 18, color: colors.muted }}>›</Text>
           </Pressable>
         </View>

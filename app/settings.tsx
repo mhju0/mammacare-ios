@@ -1,5 +1,6 @@
-import { useRef } from 'react';
-import { Alert, ScrollView, Text, TextInput, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Alert, Linking, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as Print from 'expo-print';
@@ -9,6 +10,7 @@ import { db } from '../src/db/client';
 import { baby as babyTable, food, reaction, trial } from '../src/db/schema';
 import { useBaby, useFoodsWithStatus, useReactions } from '../src/data/queries';
 import { updateBabySettings } from '../src/data/mutations';
+import { isPermissionGranted } from '../src/services/notify';
 import { foodLabel } from '../src/i18n';
 import { Button } from '../src/ui/Button';
 import { colors, layout } from '../src/ui/tokens';
@@ -23,10 +25,15 @@ const rowLabelText = { fontSize: 15, fontWeight: '600' as const, color: colors.i
 
 export default function Settings() {
   const { t } = useTranslation();
+  const router = useRouter();
   const baby = useBaby();
   const foods = useFoodsWithStatus();
   const reactions = useReactions();
   const exporting = useRef(false);
+  const [notifOn, setNotifOn] = useState<boolean | null>(null); // null = still checking
+  useEffect(() => {
+    isPermissionGranted().then(setNotifOn).catch(() => {});
+  }, []);
   if (!baby) return null;
 
   const exportPdf = async () => {
@@ -92,9 +99,20 @@ export default function Settings() {
 
   return (
     <ScrollView contentContainerStyle={{ padding: 22, paddingTop: 12, backgroundColor: colors.paper }}>
-      <Text style={{ fontSize: 10, fontWeight: '700', letterSpacing: 2.2, color: colors.muted, textAlign: 'center', paddingBottom: 12 }}>
-        {t('settings.title')}
-      </Text>
+      <View style={{ justifyContent: 'center', paddingBottom: 12 }}>
+        <Text style={{ fontSize: 10, fontWeight: '700', letterSpacing: 2.2, color: colors.muted, textAlign: 'center' }}>
+          {t('settings.title')}
+        </Text>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={t('food.close')}
+          onPress={() => router.back()}
+          hitSlop={12}
+          style={{ position: 'absolute', right: 0, top: -6, minWidth: 32, minHeight: 32, alignItems: 'flex-end', justifyContent: 'center' }}
+        >
+          <Text style={{ fontSize: 17, color: colors.muted }}>✕</Text>
+        </Pressable>
+      </View>
 
       <Text style={[labelStyle, { marginTop: 6 }]}>{t('settings.babySection')}</Text>
       <View style={rowStyle}>
@@ -119,6 +137,29 @@ export default function Settings() {
           onChange={(_, d) => d && updateBabySettings({ birthdate: d })}
         />
       </View>
+
+      <Text style={labelStyle}>{t('settings.appSection')}</Text>
+      <Pressable
+        accessibilityRole="button"
+        onPress={() => Linking.openSettings()}
+        style={rowStyle}
+      >
+        <Text style={rowLabelText}>{t('settings.notifications')}</Text>
+        <Text style={{ fontSize: 14, color: notifOn === false ? colors.red : colors.muted }}>
+          {notifOn === null ? '' : notifOn ? t('settings.notifOn') : t('settings.notifOff')}
+        </Text>
+      </Pressable>
+      <Pressable
+        accessibilityRole="button"
+        onPress={async () => {
+          await updateBabySettings({ welcomedAt: null });
+          router.back(); // home now shows the welcome card again
+        }}
+        style={rowStyle}
+      >
+        <Text style={rowLabelText}>{t('settings.showGuide')}</Text>
+        <Text style={{ fontSize: 15, color: colors.muted }}>→</Text>
+      </Pressable>
 
       <Text style={labelStyle}>{t('settings.exportSection')}</Text>
       <View style={{ gap: 10, marginTop: 10 }}>

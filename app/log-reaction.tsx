@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Alert, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -28,7 +28,15 @@ export default function LogReaction() {
 
   const saving = useRef(false);
 
-  if (!entry) return null;
+  if (!entry) {
+    // Reachable only via a stale deep link — still deserves an exit, not a blank sheet.
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', padding: 22, gap: 16, backgroundColor: colors.paper }}>
+        <Text style={{ fontSize: 15, color: colors.muted, textAlign: 'center' }}>{t('reaction.missing')}</Text>
+        <Button label={t('food.close')} variant="secondary" onPress={() => router.back()} />
+      </View>
+    );
+  }
   const showEmergency = severity === 'severe' || symptoms.includes('breathing') || symptoms.includes('swelling');
 
   const toggle = (s: string) =>
@@ -58,10 +66,22 @@ export default function LogReaction() {
   };
 
   return (
+    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
     <ScrollView contentContainerStyle={{ flexGrow: 1, padding: 22, paddingTop: 12, backgroundColor: colors.paper }}>
-      <Text style={{ fontSize: 10, fontWeight: '700', letterSpacing: 2.2, color: colors.muted, textAlign: 'center', paddingBottom: 12 }}>
-        {t('reaction.title')}
-      </Text>
+      <View style={{ justifyContent: 'center', paddingBottom: 12 }}>
+        <Text style={{ fontSize: 10, fontWeight: '700', letterSpacing: 2.2, color: colors.muted, textAlign: 'center' }}>
+          {t('reaction.title')}
+        </Text>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={t('food.close')}
+          onPress={() => router.back()}
+          hitSlop={12}
+          style={{ position: 'absolute', right: 0, top: -6, minWidth: 32, minHeight: 32, alignItems: 'flex-end', justifyContent: 'center' }}
+        >
+          <Text style={{ fontSize: 17, color: colors.muted }}>✕</Text>
+        </Pressable>
+      </View>
       <Text style={{ fontSize: 40, fontWeight: '900', color: colors.ink, letterSpacing: -0.5 }}>
         {foodLabel(entry.food)}
       </Text>
@@ -142,5 +162,6 @@ export default function LogReaction() {
         <Button label={t('reaction.save')} disabled={symptoms.length === 0} onPress={save} />
       </View>
     </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
