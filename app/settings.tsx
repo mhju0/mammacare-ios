@@ -7,7 +7,7 @@ import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system/legacy';
 import { db } from '../src/db/client';
-import { baby as babyTable, food, reaction, trial } from '../src/db/schema';
+import { baby as babyTable, checkin, food, reaction, trial } from '../src/db/schema';
 import { useBaby, useFoodsWithStatus, useReactions } from '../src/data/queries';
 import { updateBabySettings } from '../src/data/mutations';
 import { isPermissionGranted } from '../src/services/notify';
@@ -82,11 +82,11 @@ export default function Settings() {
     if (exporting.current) return;
     exporting.current = true;
     try {
-      const [b, f, tr, re] = await Promise.all([
+      const [b, f, tr, re, ch] = await Promise.all([
         db.select().from(babyTable), db.select().from(food),
-        db.select().from(trial), db.select().from(reaction),
+        db.select().from(trial), db.select().from(reaction), db.select().from(checkin),
       ]);
-      const json = buildBackup({ baby: b, foods: f, trials: tr, reactions: re }, new Date());
+      const json = buildBackup({ baby: b, foods: f, trials: tr, reactions: re, checkins: ch }, new Date());
       const path = `${FileSystem.cacheDirectory}allergy-tracker-backup.json`;
       await FileSystem.writeAsStringAsync(path, json);
       await Sharing.shareAsync(path, { mimeType: 'application/json' });

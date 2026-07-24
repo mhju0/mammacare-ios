@@ -45,12 +45,14 @@ describe('buildReportHtml', () => {
 });
 
 describe('buildBackup', () => {
-  test('versioned envelope with ISO timestamp', () => {
-    const out = JSON.parse(buildBackup({ baby: [], foods: [{ id: 'rice' }], trials: [], reactions: [] },
+  test('versioned envelope with ISO timestamp and every table', () => {
+    const out = JSON.parse(buildBackup(
+      { baby: [], foods: [{ id: 'rice' }], trials: [], reactions: [], checkins: [{ id: 'c1' }] },
       new Date('2026-07-16T00:00:00Z')));
     expect(out.app).toBe('allergy-tracker');
     expect(out.version).toBe(1);
     expect(out.exportedAt).toBe('2026-07-16T00:00:00.000Z');
     expect(out.foods).toEqual([{ id: 'rice' }]);
+    expect(out.checkins).toEqual([{ id: 'c1' }]); // backup must carry check-ins too
   });
 });

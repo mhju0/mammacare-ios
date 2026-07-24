@@ -38,7 +38,7 @@ export function buildReportHtml(v: ReportView): string {
 }
 
 export function buildBackup(
-  data: { baby: unknown[]; foods: unknown[]; trials: unknown[]; reactions: unknown[] },
+  data: { baby: unknown[]; foods: unknown[]; trials: unknown[]; reactions: unknown[]; checkins: unknown[] },
   exportedAt: Date,
 ): string {
   return JSON.stringify(
