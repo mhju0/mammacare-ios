@@ -31,18 +31,11 @@ export const colors = {
   redTint,
   dayOutMonth,
 
-  // legacy-shaped aliases — existing call sites (colors.text, colors.bg, ...) keep working unchanged.
-  bg: paper,
-  surface: paper,
-  text: ink,
-  textMuted: muted,
-  border: hairline,
-  danger: red,
   status: {
-    untried: { fg: muted, bg: paper },
-    testing: { fg: amber, bg: amberTint },
-    safe: { fg: green, bg: greenTint },
-    reacted: { fg: red, bg: redTint },
+    untried: { fg: muted },
+    testing: { fg: amber },
+    safe: { fg: green },
+    reacted: { fg: red },
   },
 } as const;
 

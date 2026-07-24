@@ -37,7 +37,7 @@ export function sortDayEvents<T extends { at: Date; key: string }>(rows: T[]): T
   return [...rows].sort((a, b) => a.at.getTime() - b.at.getTime() || startsLast(a.key) - startsLast(b.key));
 }
 
-export type DayMark = { tint: 'amber' | 'green' | 'red' | null; dot: 'red' | 'green' | null };
+export type DayMark = { tint: 'amber' | 'red' | null; dot: 'red' | 'green' | null };
 
 export function dayMark(date: Date, trials: TrialLike[], reactionDays: Date[], checkinDays: Date[]): DayMark {
   if (reactionDays.some((d) => sameLocalDay(d, date))) return { tint: 'red', dot: 'red' };

@@ -6,9 +6,7 @@ import { computeTrialNotifications } from '../domain/notifications';
 import { cancelTrialNotifications, scheduleTrialNotifications } from '../services/notify';
 import { newId } from './ids';
 
-export { newId };
-
-export async function getActiveTrial(): Promise<Trial | undefined> {
+async function getActiveTrial(): Promise<Trial | undefined> {
   const rows = await db.select().from(trial).where(isNull(trial.outcome));
   return rows[0];
 }

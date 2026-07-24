@@ -5,6 +5,7 @@ dist/
 web-build/
 ios/
 android/
+coverage/
 *.log
 
 # env & secrets

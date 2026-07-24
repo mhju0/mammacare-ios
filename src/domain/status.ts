@@ -49,7 +49,7 @@ export type StartDecision =
   | { allowed: false; reason: 'trial_in_progress' };
 
 // Invariant: an active trial (outcome null) never has reactions —
-// logging a reaction immediately sets outcome='reacted' (Task 6).
+// logging a reaction immediately sets outcome='reacted'.
 export function decideStartTrial(activeTrial: TrialLike | undefined, now: Date): StartDecision {
   if (!activeTrial) return { allowed: true, autoCloseSafeTrialId: null };
   if (isWindowElapsed(activeTrial, now)) {
